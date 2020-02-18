@@ -1,0 +1,113 @@
+{
+  "AWSTemplateFormatVersion":"2010-09-09",
+  "Description": "Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup",
+  "Parameters": {
+    "VPCCIDR":{
+      "Type":"String",
+      "Default":""
+    },
+    "SubnetCIDR0":{
+      "Type":"String",
+      "Default":""
+    },
+    "SubnetCIDR1":{
+      "Type":"String",
+      "Default":""
+    },
+    "SubnetCIDR2":{
+      "Type":"String",
+      "Default":""
+    },
+    "VPCNAME":{
+      "Type":"String",
+      "Default":""
+    },
+    "AWSregion":{
+      "Type":"String",
+      "Default":""
+    }
+  },
+  "Resources": {
+    "EC2VPC0":{
+      
+      "Type":"AWS::EC2::VPC",
+      "Properties":{
+        "CidrBlock": {"Ref":"VPCCIDR"},
+        "Tags":[{"Key":"Name","Value":{"Ref":"VPCNAME"}}]
+      }
+    },
+    "EC2SUBNET0":{
+      "Type":"AWS::EC2::Subnet",   
+        
+      "Properties":{
+        "CidrBlock":{"Ref":"SubnetCIDR0"}, 
+        "VpcId": {"Ref" :"EC2VPC0"}
+      }
+    },
+    "EC2SUBNET1":{
+      "Type":"AWS::EC2::Subnet",
+      "Properties":{
+        "VpcId": {"Ref" :"EC2VPC0"},
+        "CidrBlock":{"Ref":"SubnetCIDR1"}
+      }
+    },
+    "EC2SUBNET2":{        
+      "Type":"AWS::EC2::Subnet",
+      "Properties":{
+        "VpcId": {"Ref" :"EC2VPC0"},
+        "CidrBlock":{"Ref":"SubnetCIDR2"}
+      }
+    },
+    "EC2InternetGateway":{
+      "Type":"AWS::EC2::InternetGateway",
+      "DependsOn": "EC2VPC0",
+      "Properties":{}
+    },
+    "AttachGateway":{
+      "Type":"AWS::EC2::VPCGatewayAttachment",
+      "Properties":{
+        "VpcId":{"Ref":"EC2VPC0"},
+        "InternetGatewayId":{"Ref":"EC2InternetGateway"}
+      }
+    },
+    "EC2RouteTable":{
+      "Type":"AWS::EC2::RouteTable",
+      "Properties":{
+        "VpcId":{"Ref":"EC2VPC0"},
+        "Tags":[{"Key":"Name","Value":"RouteTable"}]
+      }
+    },
+    "RouteTableAssociationWithEC2SUBNET0" : {
+        "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "SubnetId" : { "Ref" : "EC2SUBNET0" },
+          "RouteTableId" : { "Ref" : "EC2RouteTable" }
+        }
+    },
+    "RouteTableAssociationWithEC2SUBNET1" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "EC2SUBNET1" },
+        "RouteTableId" : { "Ref" : "EC2RouteTable" }
+      }
+    },
+    "RouteTableAssociationWithEC2SUBNET2" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "EC2SUBNET2" },
+        "RouteTableId" : { "Ref" : "EC2RouteTable" }
+      }
+    },
+    "EC2Route":{
+      "Type": "AWS::EC2::Route",
+      "DependsOn" : "EC2InternetGateway",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "EC2RouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : { "Ref" : "EC2InternetGateway" }
+      }
+    }
+  },
+  "Outputs": {    
+  }
+}
