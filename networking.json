@@ -3,19 +3,19 @@
   "Description": "Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup",
   "Parameters": {
     "VPCCIDR":{
-      "Type":"value",
+      "Type":"String",
       "Default":""
     },
     "SubnetCIDR0":{
-      "Type":"value",
+      "Type":"String",
       "Default":""
     },
     "SubnetCIDR1":{
-      "Type":"value",
+      "Type":"String",
       "Default":""
     },
     "SubnetCIDR2":{
-      "Type":"value",
+      "Type":"String",
       "Default":""
     },
     "VPCNAME":{
@@ -37,9 +37,10 @@
       }
     },
     "EC2SUBNET0":{
-      "Type":"AWS::EC2::Subnet",      
+      "Type":"AWS::EC2::Subnet",   
+        
       "Properties":{
-        "CidrBlock":{"Ref":"SubnetCIDR0"},
+        "CidrBlock":{"Ref":"SubnetCIDR0"}, 
         "VpcId": {"Ref" :"EC2VPC0"}
       }
     },

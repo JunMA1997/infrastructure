@@ -14,7 +14,7 @@
 ## demo command
 aws cloudformation create-stack \
   --stack-name csye6225demo \
-  --parameters ParameterKey=VPCCIDR,ParameterValue=76.24.0.0/22 \
+  --parameters ParameterKey=VPCCIDR,ParameterValue=76.24.0.0/16 \
   --parameters ParameterKey=SubnetCIDR0,ParameterValue=76.24.1.0/24 \
   --parameters ParameterKey=SubnetCIDR1,ParameterValue=76.24.3.0/24 \
   --parameters ParameterKey=SubnetCIDR2,ParameterValue=76.24.2.0/24 \
