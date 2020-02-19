@@ -1,0 +1,28 @@
+[
+    {
+        "ParameterKey": "VPCNAME",
+        "ParameterValue": "firsttest"
+    },
+    {
+        "ParameterKey": "AWSregion",
+        "ParameterValue": "us-east-1"
+    },
+    {
+        "ParameterKey": "SubnetCIDR0",
+        "ParameterValue": "76.24.1.0/24"
+    },
+    {
+        "ParameterKey": "SubnetCIDR1",
+        "ParameterValue": "76.24.3.0/24"
+    },
+    {
+        "ParameterKey": "SubnetCIDR2",
+        "ParameterValue": "76.24.2.0/24 "
+    },
+    {
+        "ParameterKey": "VPCCIDR",
+        "ParameterValue": "76.24.0.0/16 "
+    }
+    
+    
+]
