@@ -1,7 +1,7 @@
 [
     {
         "ParameterKey": "VPCNAME",
-        "ParameterValue": "firsttest"
+        "ParameterValue": "secondtest"
     },
     {
         "ParameterKey": "AWSregion",

@@ -22,3 +22,9 @@ aws cloudformation create-stack \
   ParameterKey=VPCCIDR,ParameterValue=76.24.0.0/16 \
   --profile dev \
   --template-body file://networking.json
+
+aws cloudformation create-stack \
+  --stack-name csye6225demo4 \
+  --parameters file://vars.json \
+  --profile dev \
+  --template-body file://networking.json
