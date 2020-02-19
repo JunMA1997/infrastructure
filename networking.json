@@ -74,6 +74,7 @@
       "Type":"AWS::EC2::RouteTable",
       "Properties":{
         "VpcId":{"Ref":"EC2VPC0"},
+        "GatewayId": {"Ref":"EC2InternetGateway"},
         "Tags":[{"Key":"Name","Value":"RouteTable"}]
       }
     },
