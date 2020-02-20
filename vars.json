@@ -1,7 +1,7 @@
 [
     {
         "ParameterKey": "VPCNAME",
-        "ParameterValue": "secondtest"
+        "ParameterValue": "demo"
     },
     {
         "ParameterKey": "AWSregion",
@@ -22,6 +22,10 @@
     {
         "ParameterKey": "VPCCIDR",
         "ParameterValue": "76.24.0.0/16 "
+    },
+    {
+        "ParameterKey": "ZONE",
+        "ParameterValue": "us-east-1"
     }
     
     

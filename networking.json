@@ -25,9 +25,18 @@
     "AWSregion":{
       "Type":"String",
       "Default":""
+    },
+    "ZONE":{
+      "Type":"String",
+      "Default":""
     }
   },
   "Resources": {
+    "EC2InternetGateway":{
+      "Type":"AWS::EC2::InternetGateway",
+      "DependsOn": "EC2VPC0",
+      "Properties":{}
+    },
     "EC2VPC0":{
       
       "Type":"AWS::EC2::VPC",
@@ -37,34 +46,38 @@
       }
     },
     "EC2SUBNET0":{
-      "Type":"AWS::EC2::Subnet",   
-        
+      "Type":"AWS::EC2::Subnet",       
       "Properties":{
-        "CidrBlock":{"Ref":"SubnetCIDR0"}, 
-        "VpcId": {"Ref" :"EC2VPC0"}
+        "AvailabilityZone":{"Fn::Select":["0",{"Ref":"ZONE"}],
+        "VpcId": {"Ref" :"EC2VPC0"}},
+        "MapPublicIpOnLaunch":true, 
+        "CidrBlock":{"Ref":"SubnetCIDR1"}
       }
     },
     "EC2SUBNET1":{
       "Type":"AWS::EC2::Subnet",
+       
       "Properties":{
-        "VpcId": {"Ref" :"EC2VPC0"},
+        "AvailabilityZone":{"Fn::Select":["0",{"Ref":"ZONE"}],
+        "VpcId": {"Ref" :"EC2VPC0"}},
+        "MapPublicIpOnLaunch":true, 
         "CidrBlock":{"Ref":"SubnetCIDR1"}
       }
     },
     "EC2SUBNET2":{        
       "Type":"AWS::EC2::Subnet",
+       
       "Properties":{
-        "VpcId": {"Ref" :"EC2VPC0"},
-        "CidrBlock":{"Ref":"SubnetCIDR2"}
+        "AvailabilityZone":{"Fn::Select":["0",{"Ref":"ZONE"}],
+        "VpcId": {"Ref" :"EC2VPC0"}},
+        "MapPublicIpOnLaunch":true, 
+        "CidrBlock":{"Ref":"SubnetCIDR1"}
       }
     },
-    "EC2InternetGateway":{
-      "Type":"AWS::EC2::InternetGateway",
-      "DependsOn": "EC2VPC0",
-      "Properties":{}
-    },
+    
     "AttachGateway":{
       "Type":"AWS::EC2::VPCGatewayAttachment",
+      "DependsOn":["EC2VPC0","EC2InternetGateway"],
       "Properties":{
         "VpcId":{"Ref":"EC2VPC0"},
         "InternetGatewayId":{"Ref":"EC2InternetGateway"}
@@ -72,20 +85,23 @@
     },
     "EC2RouteTable":{
       "Type":"AWS::EC2::RouteTable",
+      "DependsOn":"EC2VPC0",
       "Properties":{
         "VpcId":{"Ref":"EC2VPC0"},
-        "GatewayId": {"Ref":"EC2InternetGateway"},
         "Tags":[{"Key":"Name","Value":"RouteTable"}]
       }
     },
     "RouteTableAssociationWithEC2SUBNET0" : {
-        "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-        "Properties" : {
-          "SubnetId" : { "Ref" : "EC2SUBNET0" },
-          "RouteTableId" : { "Ref" : "EC2RouteTable" }
-        }
+
+      "DependsOn":["EC2SUBNET0" ,"EC2RouteTable"]  ,
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "EC2SUBNET0" },
+        "RouteTableId" : { "Ref" : "EC2RouteTable" }
+      }
     },
     "RouteTableAssociationWithEC2SUBNET1" : {
+      "DependsOn":["EC2SUBNET1" ,"EC2RouteTable"]  ,
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
         "SubnetId" : { "Ref" : "EC2SUBNET1" },
@@ -93,6 +109,7 @@
       }
     },
     "RouteTableAssociationWithEC2SUBNET2" : {
+      "DependsOn":["EC2SUBNET2" ,"EC2RouteTable"]  ,
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
         "SubnetId" : { "Ref" : "EC2SUBNET2" },
@@ -100,12 +117,13 @@
       }
     },
     "EC2Route":{
+      "DependsOn":["EC2VPC0" ,"EC2InternetGateway","AttachGateway"]  ,
       "Type": "AWS::EC2::Route",
-      "DependsOn" : "EC2InternetGateway",
       "Properties" : {
         "RouteTableId" : { "Ref" : "EC2RouteTable" },
-        "DestinationCidrBlock" : "0.0.0.0/0",
-        "GatewayId" : { "Ref" : "EC2InternetGateway" }
+        "GatewayId" : { "Ref" : "EC2InternetGateway" },
+        "DestinationCidrBlock" : "0.0.0.0/0"
+        
       }
     }
   },
