@@ -24,11 +24,7 @@
     },
     "AWSregion":{
       "Type":"String",
-      "Default":""
-    },
-    "ZONE":{
-      "Type":"String",
-      "Default":""
+      "Default":"us-east-1"
     }
   },
   "Resources": {
@@ -42,24 +38,27 @@
       "Type":"AWS::EC2::VPC",
       "Properties":{
         "CidrBlock": {"Ref":"VPCCIDR"},
-        "Tags":[{"Key":"Name","Value":{"Ref":"VPCNAME"}}]
+        "Tags":[{"Key":"Name","Value":{"Ref":"VPCNAME"}}],
+        "EnableDnsSupport":"true",
+        "EnableDnsHostnames":"true",
+        "InstanceTenancy":"default"
       }
     },
     "EC2SUBNET0":{
       "Type":"AWS::EC2::Subnet",       
       "Properties":{
-        "AvailabilityZone":{"Fn::Select":["0",{"Ref":"ZONE"}],
-        "VpcId": {"Ref" :"EC2VPC0"}},
+        "AvailabilityZone":{"Fn::Select":["0",{"Fn::GetAZs":{"Ref":"AWSregion"}}]},
+        "VpcId": {"Ref" :"EC2VPC0"},
         "MapPublicIpOnLaunch":true, 
-        "CidrBlock":{"Ref":"SubnetCIDR1"}
+        "CidrBlock":{"Ref":"SubnetCIDR0"}
       }
     },
     "EC2SUBNET1":{
       "Type":"AWS::EC2::Subnet",
        
       "Properties":{
-        "AvailabilityZone":{"Fn::Select":["0",{"Ref":"ZONE"}],
-        "VpcId": {"Ref" :"EC2VPC0"}},
+        "AvailabilityZone":{"Fn::Select":["0",{"Fn::GetAZs":{"Ref":"AWSregion"}}]},
+        "VpcId": {"Ref" :"EC2VPC0"},
         "MapPublicIpOnLaunch":true, 
         "CidrBlock":{"Ref":"SubnetCIDR1"}
       }
@@ -68,10 +67,10 @@
       "Type":"AWS::EC2::Subnet",
        
       "Properties":{
-        "AvailabilityZone":{"Fn::Select":["0",{"Ref":"ZONE"}],
-        "VpcId": {"Ref" :"EC2VPC0"}},
+        "AvailabilityZone":{"Fn::Select":["0",{"Fn::GetAZs":{"Ref":"AWSregion"}}]},
+        "VpcId": {"Ref" :"EC2VPC0"},
         "MapPublicIpOnLaunch":true, 
-        "CidrBlock":{"Ref":"SubnetCIDR1"}
+        "CidrBlock":{"Ref":"SubnetCIDR2"}
       }
     },
     
