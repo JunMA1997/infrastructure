@@ -10,14 +10,6 @@
       "Type":"String",
       "Default":""  
     },
-    "SecurityGroupEgress":{
-      "Type":"String",
-      "Default":""  
-    },
-    "SecurityGroupIngress":{
-      "Type":"String",
-      "Default":""
-    },
     "VPCCIDR":{
       "Type":"String",
       "Default":""
@@ -141,15 +133,56 @@
         
       }
     },
-    "InstanceSecurityGroup":{
+    "AppInstanceSecurityGroup":{
       "Type" : "AWS::EC2::SecurityGroup",
       "DependsOn":"EC2VPC0",
       "Properties" : {
-          "GroupDescription" : { "Ref" : "GroupDescription" },
-          "GroupName" : { "Ref" : "GroupName" },
-          "SecurityGroupEgress" : { "Ref" : "SecurityGroupEgress" },
-          "SecurityGroupIngress" : {"Ref" :"SecurityGroupIngress"},
-          "VpcId" : "EC2VPC0"
+          "GroupDescription" : "application security group for 22 80 443 and 3000(app)",
+          "GroupName" : "application",
+          "SecurityGroupIngress" : [
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "22",
+              "ToPort" : "22"
+            },
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "80",
+              "ToPort" : "80"
+            },
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "443",
+              "ToPort" : "443"
+            },
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "3000",
+              "ToPort" : "3000"
+            }
+          ],
+          "VpcId" : {"Ref":"EC2VPC0"}
+        }
+    },
+    "DBSInstanceSecurityGroup":{
+      "Type" : "AWS::EC2::SecurityGroup",
+      "DependsOn":"AppInstanceSecurityGroup",
+      "Properties" : {
+          "GroupDescription" : "database security group for 3306",
+          "GroupName" : "database",
+          "SecurityGroupIngress" : [
+            {
+              "IpProtocol":"TCP",
+              "SourceSecurityGroupId":{"Ref":"AppInstanceSecurityGroup"},
+              "FromPort" : "3306",
+              "ToPort" : "3306"
+            }
+          ],
+          "VpcId" : {"Ref":"EC2VPC0"}
         }
     }
   },
