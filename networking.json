@@ -1,7 +1,23 @@
 {
   "AWSTemplateFormatVersion":"2010-09-09",
   "Description": "Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup",
-  "Parameters": {
+  "Parameters" : {
+    "GroupDescription":{
+      "Type":"String",
+      "Default":""
+    },
+    "GroupName":{
+      "Type":"String",
+      "Default":""  
+    },
+    "SecurityGroupEgress":{
+      "Type":"String",
+      "Default":""  
+    },
+    "SecurityGroupIngress":{
+      "Type":"String",
+      "Default":""
+    },
     "VPCCIDR":{
       "Type":"String",
       "Default":""
@@ -124,6 +140,17 @@
         "DestinationCidrBlock" : "0.0.0.0/0"
         
       }
+    },
+    "InstanceSecurityGroup":{
+      "Type" : "AWS::EC2::SecurityGroup",
+      "DependsOn":"EC2VPC0",
+      "Properties" : {
+          "GroupDescription" : { "Ref" : "GroupDescription" },
+          "GroupName" : { "Ref" : "GroupName" },
+          "SecurityGroupEgress" : { "Ref" : "SecurityGroupEgress" },
+          "SecurityGroupIngress" : {"Ref" :"SecurityGroupIngress"},
+          "VpcId" : "EC2VPC0"
+        }
     }
   },
   "Outputs": {    

@@ -22,7 +22,20 @@
     {
         "ParameterKey": "VPCCIDR",
         "ParameterValue": "192.168.0.0/16 "
-    }
-    
-    
+    },{
+        "ParameterKey": "GroupDescription",
+        "ParameterValue":"This Group is for CSYE-6225" 
+    },
+    {
+        "ParameterKey": "GroupName",
+        "ParameterValue":"CSYE-6225" 
+    },
+    {
+        "ParameterKey": "SecurityGroupEgress",
+        "ParameterValue":"[{\"IpProtocol\":\"ALL traffic\",\"CidrIp\":\"0.0.0.0/0\"}]" 
+    },
+    {
+        "ParameterKey": "SecurityGroupIngress",
+        "ParameterValue":"[{\"IpProtocol\":\"TCP\",\"CidrIp\":\"0.0.0.0/0\",\"FromPort\" : \"22\",\"ToPort\" : \"22\"},{\"IpProtocol\":\"TCP\",\"CidrIp\":\"0.0.0.0/0\",\"FromPort\" : \"80\",\"ToPort\" : \"80\"},{\"IpProtocol\":\"TCP\",\"CidrIp\":\"0.0.0.0/0\"},\"FromPort\" : \"443\",\"ToPort\" : \"443\"},{\"IpProtocol\":\"TCP\",\"CidrIp\":\"0.0.0.0/0\"},\"FromPort\" : \"3000\",\"ToPort\" : \"3000\"}]" 
+    }    
 ]
