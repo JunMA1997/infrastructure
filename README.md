@@ -27,4 +27,6 @@ aws cloudformation create-stack \
   --stack-name csye6225demo4 \
   --parameters file://vars.json \
   --profile dev \
-  --template-body file://networking.json
+  --template-body file://networking.json \
+  --CAPABILITY_NAMED_IAM
+# todo EC2 USERDATA THEN VALIDATE
