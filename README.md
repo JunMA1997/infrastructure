@@ -30,3 +30,8 @@ aws cloudformation create-stack \
   --template-body file://networking.json \
   --CAPABILITY_NAMED_IAM
 # todo EC2 USERDATA THEN VALIDATE
+aws cloudformation create-stack \
+  --stack-name csye6225demo4 \
+  --profile dev \
+  --template-body file://testec2.json \
+  --capabilities CAPABILITY_NAMED_IAM
