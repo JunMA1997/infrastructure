@@ -1,325 +1,498 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup
-Parameters:
-  RoleName: {Type: String, Default: EC2-CSYE6225}
-  AllocatedStorage: {Type: Number, Default: 5}
-  IAMUserPasswordReset:
-    Type: String
-    Default: false
-    AllowedValues: [true, false]
-  IAMUserPassword: {Type: String, Default: qwer1234}
-  InstanceType:
-    Type: String
-    Default: t2.micro
-    AllowedValues: ['a1.2xlarge ', ' a1.4xlarge ', ' a1.large ', ' a1.medium ', ' a1.metal ',
-      ' a1.xlarge ', ' c1.medium ', ' c1.xlarge ', ' c3.2xlarge ', ' c3.4xlarge ',
-      ' c3.8xlarge ', ' c3.large ', ' c3.xlarge ', ' c4.2xlarge ', ' c4.4xlarge ',
-      ' c4.8xlarge ', ' c4.large ', ' c4.xlarge ', ' c5.12xlarge ', ' c5.18xlarge ',
-      ' c5.24xlarge ', ' c5.2xlarge ', ' c5.4xlarge ', ' c5.9xlarge ', ' c5.large ',
-      ' c5.metal ', ' c5.xlarge ', ' c5d.12xlarge ', ' c5d.18xlarge ', ' c5d.24xlarge ',
-      ' c5d.2xlarge ', ' c5d.4xlarge ', ' c5d.9xlarge ', ' c5d.large ', ' c5d.metal ',
-      ' c5d.xlarge ', ' c5n.18xlarge ', ' c5n.2xlarge ', ' c5n.4xlarge ', ' c5n.9xlarge ',
-      ' c5n.large ', ' c5n.xlarge ', ' cc1.4xlarge ', ' cc2.8xlarge ', ' cg1.4xlarge ',
-      ' cr1.8xlarge ', ' d2.2xlarge ', ' d2.4xlarge ', ' d2.8xlarge ', ' d2.xlarge ',
-      ' f1.16xlarge ', ' f1.2xlarge ', ' f1.4xlarge ', ' g2.2xlarge ', ' g2.8xlarge ',
-      ' g3.16xlarge ', ' g3.4xlarge ', ' g3.8xlarge ', ' g3s.xlarge ', ' g4dn.12xlarge ',
-      ' g4dn.16xlarge ', ' g4dn.2xlarge ', ' g4dn.4xlarge ', ' g4dn.8xlarge ', ' g4dn.xlarge ',
-      ' h1.16xlarge ', ' h1.2xlarge ', ' h1.4xlarge ', ' h1.8xlarge ', ' hi1.4xlarge ',
-      ' hs1.8xlarge ', ' i2.2xlarge ', ' i2.4xlarge ', ' i2.8xlarge ', ' i2.xlarge ',
-      ' i3.16xlarge ', ' i3.2xlarge ', ' i3.4xlarge ', ' i3.8xlarge ', ' i3.large ',
-      ' i3.metal ', ' i3.xlarge ', ' i3en.12xlarge ', ' i3en.24xlarge ', ' i3en.2xlarge ',
-      ' i3en.3xlarge ', ' i3en.6xlarge ', ' i3en.large ', ' i3en.metal ', ' i3en.xlarge ',
-      ' inf1.24xlarge ', ' inf1.2xlarge ', ' inf1.6xlarge ', ' inf1.xlarge ', ' m1.large ',
-      ' m1.medium ', ' m1.small ', ' m1.xlarge ', ' m2.2xlarge ', ' m2.4xlarge ',
-      ' m2.xlarge ', ' m3.2xlarge ', ' m3.large ', ' m3.medium ', ' m3.xlarge ', ' m4.10xlarge ',
-      ' m4.16xlarge ', ' m4.2xlarge ', ' m4.4xlarge ', ' m4.large ', ' m4.xlarge ',
-      ' m5.12xlarge ', ' m5.16xlarge ', ' m5.24xlarge ', ' m5.2xlarge ', ' m5.4xlarge ',
-      ' m5.8xlarge ', ' m5.large ', ' m5.metal ', ' m5.xlarge ', ' m5a.12xlarge ',
-      ' m5a.16xlarge ', ' m5a.24xlarge ', ' m5a.2xlarge ', ' m5a.4xlarge ', ' m5a.8xlarge ',
-      ' m5a.large ', ' m5a.xlarge ', ' m5ad.12xlarge ', ' m5ad.16xlarge ', ' m5ad.24xlarge ',
-      ' m5ad.2xlarge ', ' m5ad.4xlarge ', ' m5ad.8xlarge ', ' m5ad.large ', ' m5ad.xlarge ',
-      ' m5d.12xlarge ', ' m5d.16xlarge ', ' m5d.24xlarge ', ' m5d.2xlarge ', ' m5d.4xlarge ',
-      ' m5d.8xlarge ', ' m5d.large ', ' m5d.metal ', ' m5d.xlarge ', ' m5dn.12xlarge ',
-      ' m5dn.16xlarge ', ' m5dn.24xlarge ', ' m5dn.2xlarge ', ' m5dn.4xlarge ', ' m5dn.8xlarge ',
-      ' m5dn.large ', ' m5dn.xlarge ', ' m5n.12xlarge ', ' m5n.16xlarge ', ' m5n.24xlarge ',
-      ' m5n.2xlarge ', ' m5n.4xlarge ', ' m5n.8xlarge ', ' m5n.large ', ' m5n.xlarge ',
-      ' p2.16xlarge ', ' p2.8xlarge ', ' p2.xlarge ', ' p3.16xlarge ', ' p3.2xlarge ',
-      ' p3.8xlarge ', ' p3dn.24xlarge ', ' r3.2xlarge ', ' r3.4xlarge ', ' r3.8xlarge ',
-      ' r3.large ', ' r3.xlarge ', ' r4.16xlarge ', ' r4.2xlarge ', ' r4.4xlarge ',
-      ' r4.8xlarge ', ' r4.large ', ' r4.xlarge ', ' r5.12xlarge ', ' r5.16xlarge ',
-      ' r5.24xlarge ', ' r5.2xlarge ', ' r5.4xlarge ', ' r5.8xlarge ', ' r5.large ',
-      ' r5.metal ', ' r5.xlarge ', ' r5a.12xlarge ', ' r5a.16xlarge ', ' r5a.24xlarge ',
-      ' r5a.2xlarge ', ' r5a.4xlarge ', ' r5a.8xlarge ', ' r5a.large ', ' r5a.xlarge ',
-      ' r5ad.12xlarge ', ' r5ad.16xlarge ', ' r5ad.24xlarge ', ' r5ad.2xlarge ', ' r5ad.4xlarge ',
-      ' r5ad.8xlarge ', ' r5ad.large ', ' r5ad.xlarge ', ' r5d.12xlarge ', ' r5d.16xlarge ',
-      ' r5d.24xlarge ', ' r5d.2xlarge ', ' r5d.4xlarge ', ' r5d.8xlarge ', ' r5d.large ',
-      ' r5d.metal ', ' r5d.xlarge ', ' r5dn.12xlarge ', ' r5dn.16xlarge ', ' r5dn.24xlarge ',
-      ' r5dn.2xlarge ', ' r5dn.4xlarge ', ' r5dn.8xlarge ', ' r5dn.large ', ' r5dn.xlarge ',
-      ' r5n.12xlarge ', ' r5n.16xlarge ', ' r5n.24xlarge ', ' r5n.2xlarge ', ' r5n.4xlarge ',
-      ' r5n.8xlarge ', ' r5n.large ', ' r5n.xlarge ', ' t1.micro ', ' t2.2xlarge ',
-      ' t2.large ', ' t2.medium ', ' t2.micro ', ' t2.nano ', ' t2.small ', ' t2.xlarge ',
-      ' t3.2xlarge ', ' t3.large ', ' t3.medium ', ' t3.micro ', ' t3.nano ', ' t3.small ',
-      ' t3.xlarge ', ' t3a.2xlarge ', ' t3a.large ', ' t3a.medium ', ' t3a.micro ',
-      ' t3a.nano ', ' t3a.small ', ' t3a.xlarge ', ' u-12tb1.metal ', ' u-18tb1.metal ',
-      ' u-24tb1.metal ', ' u-6tb1.metal ', ' u-9tb1.metal ', ' x1.16xlarge ', ' x1.32xlarge ',
-      ' x1e.16xlarge ', ' x1e.2xlarge ', ' x1e.32xlarge ', ' x1e.4xlarge ', ' x1e.8xlarge ',
-      ' x1e.xlarge ', ' z1d.12xlarge ', ' z1d.2xlarge ', ' z1d.3xlarge ', ' z1d.6xlarge ',
-      ' z1d.large ', ' z1d.metal ', ' z1d.xlarge']
-  dbusername: {Type: String, Default: root}
-  dbuserPassword: {Type: String, Default: qwer1234}
-  dbengine: {Type: String, Default: MySQL}
-  dbinstanceClass:
-    Type: String
-    Default: db.t3.micro
-    AllowedValues: [db.t3.xlarge, db.x1e.8xlarge, db.r4.16xlarge, db.r5.12xlarge,
-      db.t2.small, db.m5.4xlarge, db.t3.micro, db.z1d.6xlarge, db.t3.2xlarge, db.r5.xlarge,
-      db.r3.4xlarge, db.r3.xlarge, db.m4.xlarge, db.m5.24xlarge, db.t2.medium, db.m1.small,
-      db.t2.2xlarge, db.m4.4xlarge, db.t2.xlarge, db.m4.10xlarge, db.m3.xlarge, db.r5.16xlarge,
-      db.r5.24xlarge, db.r5.2xlarge, db.x1e.32xlarge, db.r3.large, db.z1d.2xlarge,
-      db.r5.large, db.t1.micro, db.z1d.xlarge, db.m5.large, db.m1.xlarge, db.r4.2xlarge,
-      db.m5.2xlarge, db.m3.2xlarge, db.r4.large, db.t3.medium, db.r3.8xlarge, db.r4.4xlarge,
-      db.m4.2xlarge, db.t3.small, db.m5.12xlarge, db.m5.xlarge, db.m5.16xlarge, db.x1e.xlarge,
-      db.m5.8xlarge, db.m3.medium, db.r4.xlarge, db.r3.2xlarge, db.r5.4xlarge, db.z1d.12xlarge,
-      db.m4.large, db.t2.micro, db.x1.16xlarge, db.m4.16xlarge, db.r4.8xlarge, db.t3.large,
-      db.x1e.2xlarge, db.t2.large, db.r5.8xlarge, db.m3.large, db.z1d.large, db.cv11.medium,
-      db.m1.large, db.z1d.3xlarge, db.m2.4xlarge, db.x1e.16xlarge, db.x1.32xlarge,
-      db.x1e.4xlarge, db.m2.2xlarge, db.m2.xlarge, db.m1.medium, db.cv11.small, db.cv11.9xlarge,
-      db.cv11.xlarge, db.rv11.large, db.mv11.xlarge, db.cv11.4xlarge, db.rv11.12xlarge,
-      db.mv11.medium, db.rv11.2xlarge, db.cv11.large, db.mv11.2xlarge, db.rv11.xlarge,
-      db.cv11.2xlarge, db.cv11.18xlarge, db.rv11.4xlarge, db.mv11.4xlarge, db.mv11.24xlarge,
-      db.rv11.24xlarge, db.mv11.large, db.mv11.12xlarge]
-  MultiAZ:
-    Type: String
-    Default: false
-    AllowedValues: [true, false]
-  DBInstanceIdentifier: {Type: String, Default: CSYE6225}
-  DBName: {Type: String, Default: CSYE6225}
-  ImageId: {Type: String, Default: ami-07ebfd5b3428b6f4d}
-  PubliclyAccessible:
-    Type: String
-    Default: false
-    AllowedValues: [true, false]
-  DisableApiTermination:
-    Type: String
-    Default: false
-    AllowedValues: [true, false]
-  GroupName: {Type: String, Default: CSYE6225}
-  VPCCIDR: {Type: String, Default: 192.168.0.0/16}
-  SubnetCIDR0: {Type: String, Default: 192.168.1.0/24}
-  SubnetCIDR1: {Type: String, Default: 192.168.2.0/24}
-  SubnetCIDR2: {Type: String, Default: 192.168.3.0/24}
-  VPCNAME: {Type: String, Default: CSYE6225}
-  AWSregion: {Type: String, Default: us-east-1}
-  rootVolumeSize: {Type: Number, Default: 8}
-  rootVolumeType:
-    Type: String
-    Default: gp2
-    AllowedValues: [gp2, io1, sc1, st1, standard]
-Resources:
-  EC2InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    DependsOn: EC2VPC0
-    Properties: {}
-  EC2VPC0:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: {Ref: VPCCIDR}
-      Tags:
-      - Key: Name
-        Value: {Ref: VPCNAME}
-      EnableDnsSupport: 'true'
-      EnableDnsHostnames: 'true'
-      InstanceTenancy: default
-  EC2SUBNET0:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone:
-        Fn::Select:
-        - '0'
-        - Fn::GetAZs: {Ref: AWSregion}
-      VpcId: {Ref: EC2VPC0}
-      MapPublicIpOnLaunch: true
-      CidrBlock: {Ref: SubnetCIDR0}
-  EC2SUBNET1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone:
-        Fn::Select:
-        - '1'
-        - Fn::GetAZs: {Ref: AWSregion}
-      VpcId: {Ref: EC2VPC0}
-      MapPublicIpOnLaunch: true
-      CidrBlock: {Ref: SubnetCIDR1}
-  EC2SUBNET2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone:
-        Fn::Select:
-        - '0'
-        - Fn::GetAZs: {Ref: AWSregion}
-      VpcId: {Ref: EC2VPC0}
-      MapPublicIpOnLaunch: true
-      CidrBlock: {Ref: SubnetCIDR2}
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    DependsOn: [EC2VPC0, EC2InternetGateway]
-    Properties:
-      VpcId: {Ref: EC2VPC0}
-      InternetGatewayId: {Ref: EC2InternetGateway}
-  EC2RouteTable:
-    Type: AWS::EC2::RouteTable
-    DependsOn: EC2VPC0
-    Properties:
-      VpcId: {Ref: EC2VPC0}
-      Tags:
-      - {Key: Name, Value: RouteTable}
-  RouteTableAssociationWithEC2SUBNET0:
-    DependsOn: [EC2SUBNET0, EC2RouteTable]
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: {Ref: EC2SUBNET0}
-      RouteTableId: {Ref: EC2RouteTable}
-  RouteTableAssociationWithEC2SUBNET1:
-    DependsOn: [EC2SUBNET1, EC2RouteTable]
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: {Ref: EC2SUBNET1}
-      RouteTableId: {Ref: EC2RouteTable}
-  RouteTableAssociationWithEC2SUBNET2:
-    DependsOn: [EC2SUBNET2, EC2RouteTable]
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: {Ref: EC2SUBNET2}
-      RouteTableId: {Ref: EC2RouteTable}
-  EC2Route:
-    DependsOn: [EC2VPC0, EC2InternetGateway, AttachGateway]
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: {Ref: EC2RouteTable}
-      GatewayId: {Ref: EC2InternetGateway}
-      DestinationCidrBlock: 0.0.0.0/0
-  AppInstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    DependsOn: EC2VPC0
-    Properties:
-      GroupDescription: application security group for 22 80 443 and 3000(app)
-      GroupName: application
-      SecurityGroupIngress:
-      - {IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '22', ToPort: '22'}
-      - {IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '80', ToPort: '80'}
-      - {IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '443', ToPort: '443'}
-      - {IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '3000', ToPort: '3000'}
-      VpcId: {Ref: EC2VPC0}
-  DBSInstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    DependsOn: AppInstanceSecurityGroup
-    Properties:
-      GroupDescription: database security group for 3306
-      GroupName: database
-      SecurityGroupIngress:
-      - IpProtocol: TCP
-        SourceSecurityGroupId: {Ref: AppInstanceSecurityGroup}
-        FromPort: '3306'
-        ToPort: '3306'
-      VpcId: {Ref: EC2VPC0}
-  S3Bucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Delete
-    Properties:
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
-      AccessControl: Private
-      LifecycleConfiguration:
-        Rules:
-        - Id: DeleteContentAfter90Days
-          Prefix: ''
-          Status: Enabled
-          Transitions:
-          - {TransitionInDays: '30', StorageClass: STANDARD_IA}
-  WebAppS3Policy:
-    DependsOn: [WebAppS3AppRole, S3Bucket]
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      Roles:
-      - {Ref: RoleName}
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Action: ['s3:ListBucket', 's3:PutObject', 's3:GetObject', 's3:DeleteObject']
-          Resource:
-          - Fn::Join:
-            - ''
-            - - 'arn:aws:s3:::'
-              - {Ref: S3Bucket}
-          - Fn::Join:
-            - ''
-            - - 'arn:aws:s3:::'
-              - {Ref: S3Bucket}
-              - /*
-  WebAppS3AppRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: {Ref: RoleName}
-      Policies: []
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service: [ec2.amazonaws.com]
-          Action: ['sts:AssumeRole']
-  WebAppS3Profile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: /
-      Roles:
-      - {Ref: WebAppS3AppRole}
-  DBSubnetGroup:
-    DependsOn: [EC2SUBNET0, EC2SUBNET1, EC2SUBNET2]
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: DBSubnetGroup
-      DBSubnetGroupName: DBSubnetGroup
-      SubnetIds:
-      - {Ref: EC2SUBNET0}
-      - {Ref: EC2SUBNET1}
-      - {Ref: EC2SUBNET2}
-      Tags:
-      - {Key: Name, Value: DBSubnetGroup}
-  RDSInstance:
-    Type: AWS::RDS::DBInstance
-    DependsOn: [EC2SUBNET0, EC2SUBNET1, EC2SUBNET2]
-    Properties:
-      MasterUsername: {Ref: dbusername}
-      MasterUserPassword: {Ref: dbuserPassword}
-      Engine: {Ref: dbengine}
-      DBInstanceClass: {Ref: dbinstanceClass}
-      MultiAZ: {Ref: MultiAZ}
-      DBInstanceIdentifier: {Ref: DBInstanceIdentifier}
-      DBSubnetGroupName: {Ref: DBSubnetGroup}
-      PubliclyAccessible: {Ref: PubliclyAccessible}
-      DBName: {Ref: DBName}
-      AllocatedStorage: {Ref: AllocatedStorage}
-  EC2Instance:
-    DependsOn: [WebAppS3Profile, EC2SUBNET1]
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: {Ref: ImageId}
-      NetworkInterfaces:
-      - DeviceIndex: '0'
-        AssociatePublicIpAddress: 'true'
-        DeleteOnTermination: 'true'
-        SubnetId: {Ref: EC2SUBNET1}
-        GroupSet:
-        - {Ref: AppInstanceSecurityGroup}
-      InstanceType: {Ref: InstanceType}
-      DisableApiTermination: {Ref: DisableApiTermination}
-      BlockDeviceMappings:
-      - DeviceName: /dev/sda1
-        Ebs:
-          VolumeSize: {Ref: rootVolumeSize}
-          VolumeType: {Ref: rootVolumeType}
-      IamInstanceProfile: {Ref: WebAppS3Profile}
-Outputs: {}
+{
+  "AWSTemplateFormatVersion":"2010-09-09",
+  "Description": "Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup",
+  "Parameters" : {
+    "dbport":{
+      "Type":"String",
+      "Default":"3306",
+      "Description":"port for rds"
+    },
+    "AWSkeyid":{
+      "Type":"String",
+      "Default":"",
+      "Description":"AWS crendential keyid"
+    },
+    "AWSkey":{
+      "Type":"String",
+      "Default":"",
+      "Description":"AWS crendential key"
+  },
+    "ManagedPolicyName":{
+      "Type":"String",
+      "Default":"WebAppS3",
+      "Description":"policy name, in user story, it named WebAppS3"
+    },
+    "KeyName":{      
+        "Type":"String",
+        "Default":"aws",
+        "Description":"AWS Key pair Name(for ec2)"      
+    },
+    "RoleName":{
+      "Type":"String",
+      "Default":"EC2-CSYE6225",
+      "Description":"RoleName, in user story, it named EC2-CSYE6225"
+    },
+    "AllocatedStorage":{
+      "Type":"Number",
+      "Default":5,
+      "Description":"RDS AllocatedStorage"
+    },
+    "InstanceType":{
+      "Type":"String",
+      "Default":"t2.micro",
+      "AllowedValues": ["a1.2xlarge "," a1.4xlarge "," a1.large "," a1.medium "," a1.metal "," a1.xlarge "," c1.medium "," c1.xlarge "," c3.2xlarge "," c3.4xlarge "," c3.8xlarge "," c3.large "," c3.xlarge "," c4.2xlarge "," c4.4xlarge "," c4.8xlarge "," c4.large "," c4.xlarge "," c5.12xlarge "," c5.18xlarge "," c5.24xlarge "," c5.2xlarge "," c5.4xlarge "," c5.9xlarge "," c5.large "," c5.metal "," c5.xlarge "," c5d.12xlarge "," c5d.18xlarge "," c5d.24xlarge "," c5d.2xlarge "," c5d.4xlarge "," c5d.9xlarge "," c5d.large "," c5d.metal "," c5d.xlarge "," c5n.18xlarge "," c5n.2xlarge "," c5n.4xlarge "," c5n.9xlarge "," c5n.large "," c5n.xlarge "," cc1.4xlarge "," cc2.8xlarge "," cg1.4xlarge "," cr1.8xlarge "," d2.2xlarge "," d2.4xlarge "," d2.8xlarge "," d2.xlarge "," f1.16xlarge "," f1.2xlarge "," f1.4xlarge "," g2.2xlarge "," g2.8xlarge "," g3.16xlarge "," g3.4xlarge "," g3.8xlarge "," g3s.xlarge "," g4dn.12xlarge "," g4dn.16xlarge "," g4dn.2xlarge "," g4dn.4xlarge "," g4dn.8xlarge "," g4dn.xlarge "," h1.16xlarge "," h1.2xlarge "," h1.4xlarge "," h1.8xlarge "," hi1.4xlarge "," hs1.8xlarge "," i2.2xlarge "," i2.4xlarge "," i2.8xlarge "," i2.xlarge "," i3.16xlarge "," i3.2xlarge "," i3.4xlarge "," i3.8xlarge "," i3.large "," i3.metal "," i3.xlarge "," i3en.12xlarge "," i3en.24xlarge "," i3en.2xlarge "," i3en.3xlarge "," i3en.6xlarge "," i3en.large "," i3en.metal "," i3en.xlarge "," inf1.24xlarge "," inf1.2xlarge "," inf1.6xlarge "," inf1.xlarge "," m1.large "," m1.medium "," m1.small "," m1.xlarge "," m2.2xlarge "," m2.4xlarge "," m2.xlarge "," m3.2xlarge "," m3.large "," m3.medium "," m3.xlarge "," m4.10xlarge "," m4.16xlarge "," m4.2xlarge "," m4.4xlarge "," m4.large "," m4.xlarge "," m5.12xlarge "," m5.16xlarge "," m5.24xlarge "," m5.2xlarge "," m5.4xlarge "," m5.8xlarge "," m5.large "," m5.metal "," m5.xlarge "," m5a.12xlarge "," m5a.16xlarge "," m5a.24xlarge "," m5a.2xlarge "," m5a.4xlarge "," m5a.8xlarge "," m5a.large "," m5a.xlarge "," m5ad.12xlarge "," m5ad.16xlarge "," m5ad.24xlarge "," m5ad.2xlarge "," m5ad.4xlarge "," m5ad.8xlarge "," m5ad.large "," m5ad.xlarge "," m5d.12xlarge "," m5d.16xlarge "," m5d.24xlarge "," m5d.2xlarge "," m5d.4xlarge "," m5d.8xlarge "," m5d.large "," m5d.metal "," m5d.xlarge "," m5dn.12xlarge "," m5dn.16xlarge "," m5dn.24xlarge "," m5dn.2xlarge "," m5dn.4xlarge "," m5dn.8xlarge "," m5dn.large "," m5dn.xlarge "," m5n.12xlarge "," m5n.16xlarge "," m5n.24xlarge "," m5n.2xlarge "," m5n.4xlarge "," m5n.8xlarge "," m5n.large "," m5n.xlarge "," p2.16xlarge "," p2.8xlarge "," p2.xlarge "," p3.16xlarge "," p3.2xlarge "," p3.8xlarge "," p3dn.24xlarge "," r3.2xlarge "," r3.4xlarge "," r3.8xlarge "," r3.large "," r3.xlarge "," r4.16xlarge "," r4.2xlarge "," r4.4xlarge "," r4.8xlarge "," r4.large "," r4.xlarge "," r5.12xlarge "," r5.16xlarge "," r5.24xlarge "," r5.2xlarge "," r5.4xlarge "," r5.8xlarge "," r5.large "," r5.metal "," r5.xlarge "," r5a.12xlarge "," r5a.16xlarge "," r5a.24xlarge "," r5a.2xlarge "," r5a.4xlarge "," r5a.8xlarge "," r5a.large "," r5a.xlarge "," r5ad.12xlarge "," r5ad.16xlarge "," r5ad.24xlarge "," r5ad.2xlarge "," r5ad.4xlarge "," r5ad.8xlarge "," r5ad.large "," r5ad.xlarge "," r5d.12xlarge "," r5d.16xlarge "," r5d.24xlarge "," r5d.2xlarge "," r5d.4xlarge "," r5d.8xlarge "," r5d.large "," r5d.metal "," r5d.xlarge "," r5dn.12xlarge "," r5dn.16xlarge "," r5dn.24xlarge "," r5dn.2xlarge "," r5dn.4xlarge "," r5dn.8xlarge "," r5dn.large "," r5dn.xlarge "," r5n.12xlarge "," r5n.16xlarge "," r5n.24xlarge "," r5n.2xlarge "," r5n.4xlarge "," r5n.8xlarge "," r5n.large "," r5n.xlarge "," t1.micro "," t2.2xlarge "," t2.large "," t2.medium "," t2.micro "," t2.nano "," t2.small "," t2.xlarge "," t3.2xlarge "," t3.large "," t3.medium "," t3.micro "," t3.nano "," t3.small "," t3.xlarge "," t3a.2xlarge "," t3a.large "," t3a.medium "," t3a.micro "," t3a.nano "," t3a.small "," t3a.xlarge "," u-12tb1.metal "," u-18tb1.metal "," u-24tb1.metal "," u-6tb1.metal "," u-9tb1.metal "," x1.16xlarge "," x1.32xlarge "," x1e.16xlarge "," x1e.2xlarge "," x1e.32xlarge "," x1e.4xlarge "," x1e.8xlarge "," x1e.xlarge "," z1d.12xlarge "," z1d.2xlarge "," z1d.3xlarge "," z1d.6xlarge "," z1d.large "," z1d.metal "," z1d.xlarge"],
+      "Description":"EC2 INSTANCE TYPE"
+    
+    },
+    "dbusername":{
+      "Type":"String",
+      "Default":"root",
+      "Description":"rds dbusername"
+    },
+    "dbuserPassword":{
+      "Type":"String",
+      "Default":"qwer1234",
+      "Description":"rds dbuser pwd"
+    },
+    "dbengine":{
+      "Type":"String",
+      "Default":"MySQL",
+      "Description":"rds db engine"
+    },
+    "dbinstanceClass":{
+      "Type":"String",
+      "Default":"db.t3.micro",
+      "AllowedValues":["db.t3.xlarge","db.x1e.8xlarge","db.r4.16xlarge","db.r5.12xlarge","db.t2.small","db.m5.4xlarge","db.t3.micro","db.z1d.6xlarge","db.t3.2xlarge","db.r5.xlarge","db.r3.4xlarge","db.r3.xlarge","db.m4.xlarge","db.m5.24xlarge","db.t2.medium","db.m1.small","db.t2.2xlarge","db.m4.4xlarge","db.t2.xlarge","db.m4.10xlarge","db.m3.xlarge","db.r5.16xlarge","db.r5.24xlarge","db.r5.2xlarge","db.x1e.32xlarge","db.r3.large","db.z1d.2xlarge","db.r5.large","db.t1.micro","db.z1d.xlarge","db.m5.large","db.m1.xlarge","db.r4.2xlarge","db.m5.2xlarge","db.m3.2xlarge","db.r4.large","db.t3.medium","db.r3.8xlarge","db.r4.4xlarge","db.m4.2xlarge","db.t3.small","db.m5.12xlarge","db.m5.xlarge","db.m5.16xlarge","db.x1e.xlarge","db.m5.8xlarge","db.m3.medium","db.r4.xlarge","db.r3.2xlarge","db.r5.4xlarge","db.z1d.12xlarge","db.m4.large","db.t2.micro","db.x1.16xlarge","db.m4.16xlarge","db.r4.8xlarge","db.t3.large","db.x1e.2xlarge","db.t2.large","db.r5.8xlarge","db.m3.large","db.z1d.large","db.cv11.medium","db.m1.large","db.z1d.3xlarge","db.m2.4xlarge","db.x1e.16xlarge","db.x1.32xlarge","db.x1e.4xlarge","db.m2.2xlarge","db.m2.xlarge","db.m1.medium","db.cv11.small","db.cv11.9xlarge","db.cv11.xlarge","db.rv11.large","db.mv11.xlarge","db.cv11.4xlarge","db.rv11.12xlarge","db.mv11.medium","db.rv11.2xlarge","db.cv11.large","db.mv11.2xlarge","db.rv11.xlarge","db.cv11.2xlarge","db.cv11.18xlarge","db.rv11.4xlarge","db.mv11.4xlarge","db.mv11.24xlarge","db.rv11.24xlarge","db.mv11.large","db.mv11.12xlarge"],
+      "Description":"rds instance class"
+    },
+    "MultiAZ":{
+      "Type":"String",
+      "Default":false,
+      "AllowedValues": [true, false],
+      "Description":"rds MultiAZ"
+    },
+    "DBInstanceIdentifier":{
+      "Type":"String",
+      "Default":"CSYE6225",
+      "Description":"rds DBInstanceIdentifier"
+    },
+    "DBName":{
+      "Type":"String",
+      "Default":"CSYE6225",
+      "Description":"rds dbname, in mysql database name"
+    },
+    "ImageId":{
+      "Type":"String",
+      "Default":"ami-0b8c159f4584059f6",
+      "Description":"ec2 imageID"
+    },
+    "PubliclyAccessible":{
+      "Type":"String",
+      "Default":false,
+      "AllowedValues": [true, false],
+      "Description":"PubliclyAccessible for rds"
+    },
+    "DisableApiTermination":{
+      "Type":"String",
+      "Default":false,
+      "AllowedValues": [true, false],
+      "Description":"ec2 DisableApiTermination"
+    },
+    "VPCCIDR":{
+      "Type":"String",
+      "Default":"192.168.0.0/16",
+      "Description":"VPCCIDR"
+    },
+    "SubnetCIDR0":{
+      "Type":"String",
+      "Default":"192.168.1.0/24",
+      "Description":"SubnetCIDR0"
+    },
+    "SubnetCIDR1":{
+      "Type":"String",
+      "Default":"192.168.2.0/24",
+      "Description":"SubnetCIDR1"
+    },
+    "SubnetCIDR2":{
+      "Type":"String",
+      "Default":"192.168.3.0/24",
+      "Description":"SubnetCIDR2"
+    },
+    "VPCNAME":{
+      "Type":"String",
+      "Default":"CSYE6225",
+      "Description":"VPCNAME"
+    },
+    "AWSregion":{
+      "Type":"String",
+      "Default":"us-east-1",
+      "Description":"AWSregion"
+    },
+    "rootVolumeSize":{
+      "Type":"Number",
+      "Default":8,
+      "Description":"ec2 rootVolumeSize"
+    },
+    "rootVolumeType":{
+      "Type":"String",
+      "Default":"gp2",
+      "AllowedValues": ["gp2" , "io1" , "sc1" , "st1" , "standard"],
+      "Description":"ec2 rootVolumeType"      
+    }
+  },
+  "Resources": {
+    "EC2InternetGateway":{
+      "Type":"AWS::EC2::InternetGateway",
+      "DependsOn": "EC2VPC0",
+      "Properties":{}
+    },
+    "EC2VPC0":{
+      
+      "Type":"AWS::EC2::VPC",
+      "Properties":{
+        "CidrBlock": {"Ref":"VPCCIDR"},
+        "Tags":[{"Key":"Name","Value":{"Ref":"VPCNAME"}}],
+        "EnableDnsSupport":"true",
+        "EnableDnsHostnames":"true",
+        "InstanceTenancy":"default"
+      }
+    },
+    "EC2SUBNET0":{
+      "Type":"AWS::EC2::Subnet",       
+      "DependsOn":"EC2VPC0",
+      "Properties":{
+        "AvailabilityZone":{"Fn::Select":["0",{"Fn::GetAZs":{"Ref":"AWSregion"}}]},
+        "VpcId": {"Ref" :"EC2VPC0"},
+        "MapPublicIpOnLaunch":true, 
+        "CidrBlock":{"Ref":"SubnetCIDR0"}
+      }
+    },
+    "EC2SUBNET1":{
+      "Type":"AWS::EC2::Subnet",
+      "DependsOn":"EC2VPC0",
+      "Properties":{
+        "AvailabilityZone":{"Fn::Select":["1",{"Fn::GetAZs":{"Ref":"AWSregion"}}]},
+        "VpcId": {"Ref" :"EC2VPC0"},
+        "MapPublicIpOnLaunch":true, 
+        "CidrBlock":{"Ref":"SubnetCIDR1"}
+      }
+    },
+    "EC2SUBNET2":{        
+      "Type":"AWS::EC2::Subnet",
+      "DependsOn":"EC2VPC0",
+      "Properties":{
+        "AvailabilityZone":{"Fn::Select":["0",{"Fn::GetAZs":{"Ref":"AWSregion"}}]},
+        "VpcId": {"Ref" :"EC2VPC0"},
+        "MapPublicIpOnLaunch":true, 
+        "CidrBlock":{"Ref":"SubnetCIDR2"}
+      }
+    },    
+    "AttachGateway":{
+      "Type":"AWS::EC2::VPCGatewayAttachment",
+      "DependsOn":["EC2VPC0","EC2InternetGateway"],
+      "Properties":{
+        "VpcId":{"Ref":"EC2VPC0"},
+        "InternetGatewayId":{"Ref":"EC2InternetGateway"}
+      }
+    },
+    "EC2RouteTable":{
+      "Type":"AWS::EC2::RouteTable",
+      "DependsOn":"EC2VPC0",
+      "Properties":{
+        "VpcId":{"Ref":"EC2VPC0"},
+        "Tags":[{"Key":"Name","Value":"RouteTable"}]
+      }
+    },
+    "RouteTableAssociationWithEC2SUBNET0" : {
+
+      "DependsOn":["EC2SUBNET0" ,"EC2RouteTable"]  ,
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "EC2SUBNET0" },
+        "RouteTableId" : { "Ref" : "EC2RouteTable" }
+      }
+    },
+    "RouteTableAssociationWithEC2SUBNET1" : {
+      "DependsOn":["EC2SUBNET1" ,"EC2RouteTable"]  ,
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "EC2SUBNET1" },
+        "RouteTableId" : { "Ref" : "EC2RouteTable" }
+      }
+    },
+    "RouteTableAssociationWithEC2SUBNET2" : {
+      "DependsOn":["EC2SUBNET2" ,"EC2RouteTable"]  ,
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "EC2SUBNET2" },
+        "RouteTableId" : { "Ref" : "EC2RouteTable" }
+      }
+    },
+    "EC2Route":{
+      "DependsOn":["EC2InternetGateway","AttachGateway"]  ,
+      "Type": "AWS::EC2::Route",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "EC2RouteTable" },
+        "GatewayId" : { "Ref" : "EC2InternetGateway" },
+        "DestinationCidrBlock" : "0.0.0.0/0"
+        
+      }
+    },
+    "AppInstanceSecurityGroup":{
+      "Type" : "AWS::EC2::SecurityGroup",
+      "DependsOn":"EC2VPC0",
+      "Properties" : {
+          "GroupDescription" : "application security group for 22 80 443 and 3000(app)",
+          "GroupName" : "application",
+          "SecurityGroupIngress" : [
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "22",
+              "ToPort" : "22"
+            },
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "80",
+              "ToPort" : "80"
+            },
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "443",
+              "ToPort" : "443"
+            },
+            {
+              "IpProtocol":"TCP",
+              "CidrIp":"0.0.0.0/0",
+              "FromPort" : "3000",
+              "ToPort" : "3000"
+            }
+          ],
+          "VpcId" : {"Ref":"EC2VPC0"}
+        }
+    },
+    "DBSInstanceSecurityGroup":{
+      "Type" : "AWS::EC2::SecurityGroup",
+      "DependsOn":"AppInstanceSecurityGroup",
+      "Properties" : {
+          "GroupDescription" : "database security group for 3306",
+          "GroupName" : "database",
+          "SecurityGroupIngress" : [
+            {
+              "IpProtocol":"TCP",
+              "SourceSecurityGroupId":{"Ref":"AppInstanceSecurityGroup"},
+              "FromPort" : "3306",
+              "ToPort" : "3306"
+            }
+          ],
+          "VpcId" : {"Ref":"EC2VPC0"}
+        }
+    },
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy" : "Delete",      
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [{
+            "ServerSideEncryptionByDefault": {
+              "SSEAlgorithm": "AES256"
+            }
+          }]
+        },
+        "AccessControl": "Private",   
+        "PublicAccessBlockConfiguration":{
+          "BlockPublicAcls":true,
+          "BlockPublicPolicy":true,
+          "IgnorePublicAcls":true,
+          "RestrictPublicBuckets":true
+        } ,    
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Id": "TransitionInDays30toSTANDARD_IA",
+              "Prefix": "",
+              "Status": "Enabled",
+              "Transitions": [
+                {
+                  "TransitionInDays": "30",
+                  "StorageClass": "STANDARD_IA"
+                }
+              ]  
+            }
+          ]
+        }
+      }
+    },
+    "WebAppS3AppRole": {
+            
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+          "RoleName":{"Ref":"RoleName"},
+          "Policies": [],
+          "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                      "Effect": "Allow",
+                      "Principal": {
+                          "Service": [
+                              "ec2.amazonaws.com"
+                          ]
+                      },
+                      "Action": [
+                          "sts:AssumeRole"
+                      ]
+                  }
+              ]
+          }
+      }
+    },
+    "WebAppS3Policy":{
+      "DependsOn":["WebAppS3AppRole","S3Bucket"],
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "ManagedPolicyName":{"Ref":"ManagedPolicyName"},
+        "Roles":[{"Ref":"RoleName"}],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": 
+          [
+              {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:ListBucket",
+                    "s3:PutObject",
+                    "s3:GetObject",
+                    "s3:DeleteObject"
+                  ],
+                  "Resource": [ 
+                      {"Fn::Join":["",[
+                          "arn:aws:s3:::",
+                          {"Ref":"S3Bucket"}
+                      ]]},
+                      {"Fn::Join":["",[
+                          "arn:aws:s3:::",
+                          {"Ref":"S3Bucket"},
+                          "/*"
+                      ]]}
+                  ]
+              }
+      
+          ]
+        }
+      }
+    },
+    
+    "WebAppS3Profile" : {
+      "DependsOn":["WebAppS3AppRole"],
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [{"Ref":"WebAppS3AppRole"}]
+      }
+    },
+    "DBSubnetGroup":{
+      "DependsOn":["EC2SUBNET0","EC2SUBNET1","EC2SUBNET2"],
+      "Type" : "AWS::RDS::DBSubnetGroup",
+      "Properties" : {
+          "DBSubnetGroupDescription" : "DBSubnetGroup",
+          "DBSubnetGroupName" : "DBSubnetGroup",
+          "SubnetIds" : [ {"Ref":"EC2SUBNET0"},{"Ref":"EC2SUBNET1"},{"Ref":"EC2SUBNET2"} ],
+          "Tags" : [ {"Key":"Name","Value":"DBSubnetGroup"} ]
+        }
+    },
+    "RDSInstance":{
+      "Type" : "AWS::RDS::DBInstance",
+      "DependsOn":["DBSubnetGroup","DBSInstanceSecurityGroup"],
+      "Properties" :{
+        "MasterUsername" : {"Ref":"dbusername"},
+        "MasterUserPassword" : {"Ref":"dbuserPassword"},
+        "Engine" : {"Ref":"dbengine"},
+        "DBInstanceClass" :{"Ref":"dbinstanceClass"},
+        "MultiAZ" : {"Ref":"MultiAZ"},
+        "DBInstanceIdentifier" : {"Ref":"DBInstanceIdentifier"},
+        "DBSubnetGroupName": {"Ref":"DBSubnetGroup"},
+        "PubliclyAccessible": {"Ref":"PubliclyAccessible"},
+        "DBName": {"Ref":"DBName"},
+        "AllocatedStorage" :{"Ref":"AllocatedStorage"},
+        "VPCSecurityGroups":[{"Ref":"DBSInstanceSecurityGroup"}]
+      }
+    },
+    "EC2Instance":{
+      "DependsOn":["WebAppS3Profile","EC2SUBNET1","RDSInstance","S3Bucket"],
+      "Type" : "AWS::EC2::Instance",
+      
+      "Properties" : {
+        "UserData":{
+          "Fn::Base64":{
+          "Fn::Join":["",
+              [
+              "#!/bin/bash\n",
+              "exec > /tmp/part-001.log 2>&1\n",
+              "cd ~/webapp\n",
+              "npm install\n",
+              "npm start ",
+              " ",
+              {"Fn::GetAtt": ["RDSInstance","Endpoint.Address"]},
+              " ",
+              {"Ref":"dbusername"},
+              " ",
+              {"Ref":"dbuserPassword"},
+              " ",
+              {"Ref":"dbport"},
+              " ",
+              {"Ref":"DBName"},
+              " ",
+              {"Ref":"S3Bucket"},
+              " ",
+              {"Ref":"AWSkeyid"},
+              " ",
+              {"Ref":"AWSkey"},
+              "\n"
+              ]
+          ]
+          }
+        },
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : {"Ref":"ImageId"},
+        "NetworkInterfaces" : [
+          { 
+            "DeviceIndex" : "0",
+            "AssociatePublicIpAddress" : "true",
+            "DeleteOnTermination" : "true",
+            "SubnetId" : { "Ref" : "EC2SUBNET1" },
+            "GroupSet" : [ { "Ref" : "AppInstanceSecurityGroup" } ]
+          }
+        ],
+        "InstanceType" : {"Ref":"InstanceType"},
+        "DisableApiTermination" : {"Ref":"DisableApiTermination"},
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/sda1",
+            "Ebs" : {
+              "VolumeSize" : {"Ref":"rootVolumeSize"},
+              "VolumeType" : {"Ref":"rootVolumeType"}
+            }
+          }
+        ],
+        "IamInstanceProfile" : {"Ref":"WebAppS3Profile"}
+      }
+    }
+  },
+  "Outputs": {    
+    "EC2Info":{
+      "Description": "The EC2 INFO",  
+      "Value" : { "Ref" : "EC2Instance" }
+    },
+    "RDSInfo":{
+      "Description": "The RDS INFO",  
+      "Value" : { "Ref" : "RDSInstance" }
+    },
+    "S3BucketInfo":{
+      "Description": "The S3Bucket INFO",  
+      "Value" : { "Ref" : "S3Bucket" }
+    }
+  }
+}
