@@ -1,33 +1,124 @@
 [
     {
-        "ParameterKey": "VPCNAME",
-        "ParameterValue": "demoasd"
+        "ParameterKey": "dbport",
+        "ParameterValue": "3306"
     },
     {
-        "ParameterKey": "AWSregion",
-        "ParameterValue": "us-east-1"
+        "ParameterKey": "AWSkeyid",
+        "ParameterValue": "AKIAXOQ3XLO2NVDRX3W7"
     },
     {
-        "ParameterKey": "SubnetCIDR0",
-        "ParameterValue": "192.168.1.0/24"
+        "ParameterKey": "AWSkey",
+        "ParameterValue": "akbcLYmwCvxZskCI1Opi8f/yhD0eZhANcZ0ZqX/u"
     },
     {
-        "ParameterKey": "SubnetCIDR1",
-        "ParameterValue": "192.168.3.0/24"
+        "ParameterKey": "ManagedPolicyName",
+        "ParameterValue": "WebAppS3"
     },
     {
-        "ParameterKey": "SubnetCIDR2",
-        "ParameterValue": "192.168.2.0/24 "
+        "ParameterKey": "KeyName",
+        "ParameterValue": "aws"
     },
+    {
+        "ParameterKey": "RoleName",
+        "ParameterValue": "EC2-CSYE6225"
+    },{
+        "ParameterKey": "AllocatedStorage",
+        "ParameterValue":5 
+    },
+    {
+        "ParameterKey": "InstanceType",
+        "ParameterValue":"t2.micro" 
+    },
+    {
+        "ParameterKey": "dbusername",
+        "ParameterValue":"root" 
+    },
+    {
+        "ParameterKey": "dbuserPassword",
+        "ParameterValue":"QWERty1234!" 
+    }
+    ,
+    {
+        "ParameterKey": "dbengine",
+        "ParameterValue":"MySQL" 
+    }
+    ,
+    {
+        "ParameterKey": "dbinstanceClass",
+        "ParameterValue":"db.t3.micro" 
+    }
+    ,
+    {
+        "ParameterKey": "MultiAZ",
+        "ParameterValue":"false" 
+    }
+    ,
+    {
+        "ParameterKey": "DBInstanceIdentifier",
+        "ParameterValue":"CSYE6225" 
+    }
+    ,
+    {
+        "ParameterKey": "DBName",
+        "ParameterValue":"CSYE6225" 
+    }
+    ,
+    {
+        "ParameterKey": "ImageId",
+        "ParameterValue":"ami-0b8c159f4584059f6" 
+    }
+    ,
+    {
+        "ParameterKey": "PubliclyAccessible",
+        "ParameterValue":"false" 
+    }
+    ,
+    {
+        "ParameterKey": "DisableApiTermination",
+        "ParameterValue":"false" 
+    }
+    ,
     {
         "ParameterKey": "VPCCIDR",
-        "ParameterValue": "192.168.0.0/16 "
-    },{
-        "ParameterKey": "GroupDescription",
-        "ParameterValue":"This Group is for CSYE-6225" 
-    },
+        "ParameterValue":"192.168.0.0/16" 
+    }
+    ,
     {
-        "ParameterKey": "GroupName",
-        "ParameterValue":"CSYE-6225" 
+        "ParameterKey": "SubnetCIDR0",
+        "ParameterValue":"192.168.1.0/24" 
+    }
+    ,
+    {
+        "ParameterKey": "SubnetCIDR1",
+        "ParameterValue":"192.168.2.0/24" 
+    }
+    ,
+    {
+        "ParameterKey": "SubnetCIDR2",
+        "ParameterValue":"192.168.3.0/24" 
+    }
+    ,
+    {
+        "ParameterKey": "VPCNAME",
+        "ParameterValue":"CSYE6225" 
+    }
+    ,
+    {
+        "ParameterKey": "AWSregion",
+        "ParameterValue":"us-east-1" 
+    }
+    ,
+    {
+        "ParameterKey": "rootVolumeSize",
+        "ParameterValue":8 
+    }
+    ,
+    {
+        "ParameterKey": "rootVolumeType",
+        "ParameterValue":"gp2" 
     }
 ]
+
+
+
