@@ -4,7 +4,7 @@
   "Parameters" : {
     "dbport":{
       "Type":"String",
-      "Default":"3306",
+      "Default":"",
       "Description":"port for rds"
     },
     "AWSkeyid":{
@@ -19,17 +19,17 @@
   },
     "ManagedPolicyName":{
       "Type":"String",
-      "Default":"WebAppS3",
+      "Default":"",
       "Description":"policy name, in user story, it named WebAppS3"
     },
     "KeyName":{      
         "Type":"String",
-        "Default":"aws",
+        "Default":"",
         "Description":"AWS Key pair Name(for ec2)"      
     },
     "RoleName":{
       "Type":"String",
-      "Default":"EC2-CSYE6225",
+      "Default":"",
       "Description":"RoleName, in user story, it named EC2-CSYE6225"
     },
     "AllocatedStorage":{
@@ -46,17 +46,17 @@
     },
     "dbusername":{
       "Type":"String",
-      "Default":"root",
+      "Default":"",
       "Description":"rds dbusername"
     },
     "dbuserPassword":{
       "Type":"String",
-      "Default":"qwer1234",
+      "Default":"",
       "Description":"rds dbuser pwd"
     },
     "dbengine":{
       "Type":"String",
-      "Default":"MySQL",
+      "Default":"",
       "Description":"rds db engine"
     },
     "dbinstanceClass":{
@@ -73,17 +73,17 @@
     },
     "DBInstanceIdentifier":{
       "Type":"String",
-      "Default":"CSYE6225",
+      "Default":"",
       "Description":"rds DBInstanceIdentifier"
     },
     "DBName":{
       "Type":"String",
-      "Default":"CSYE6225",
+      "Default":"",
       "Description":"rds dbname, in mysql database name"
     },
     "ImageId":{
       "Type":"String",
-      "Default":"ami-0b8c159f4584059f6",
+      "Default":"",
       "Description":"ec2 imageID"
     },
     "PubliclyAccessible":{
@@ -100,32 +100,32 @@
     },
     "VPCCIDR":{
       "Type":"String",
-      "Default":"192.168.0.0/16",
+      "Default":"",
       "Description":"VPCCIDR"
     },
     "SubnetCIDR0":{
       "Type":"String",
-      "Default":"192.168.1.0/24",
+      "Default":"",
       "Description":"SubnetCIDR0"
     },
     "SubnetCIDR1":{
       "Type":"String",
-      "Default":"192.168.2.0/24",
+      "Default":"",
       "Description":"SubnetCIDR1"
     },
     "SubnetCIDR2":{
       "Type":"String",
-      "Default":"192.168.3.0/24",
+      "Default":"",
       "Description":"SubnetCIDR2"
     },
     "VPCNAME":{
       "Type":"String",
-      "Default":"CSYE6225",
+      "Default":"",
       "Description":"VPCNAME"
     },
     "AWSregion":{
       "Type":"String",
-      "Default":"us-east-1",
+      "Default":"",
       "Description":"AWSregion"
     },
     "rootVolumeSize":{
@@ -429,28 +429,32 @@
           "Fn::Base64":{
           "Fn::Join":["",
               [
-              "#!/bin/bash\n",
-              "exec > /tmp/part-001.log 2>&1\n",
-              "cd ~/webapp\n",
-              "npm install\n",
-              "npm start ",
-              " ",
-              {"Fn::GetAtt": ["RDSInstance","Endpoint.Address"]},
-              " ",
-              {"Ref":"dbusername"},
-              " ",
-              {"Ref":"dbuserPassword"},
-              " ",
-              {"Ref":"dbport"},
-              " ",
-              {"Ref":"DBName"},
-              " ",
-              {"Ref":"S3Bucket"},
-              " ",
-              {"Ref":"AWSkeyid"},
-              " ",
-              {"Ref":"AWSkey"},
-              "\n"
+                "#!/bin/bash\n",
+                "exec > /tmp/part-001.log 2>&1\n",
+                "export DBHost=",
+                {"Fn::GetAtt": ["RDSInstance","Endpoint.Address"]},
+                "\n",
+                "export DBUser=",
+                {"Ref":"dbusername"},
+                "\n",
+                "export DBPassword=",
+                {"Ref":"dbuserPassword"},
+                "\n",
+                "export DBPort=",
+                {"Ref":"dbport"},
+                "\n",
+                "export DBDatabase=",
+                {"Ref":"DBName"},
+                "\n",
+                "export S3BucketName=",
+                {"Ref":"S3Bucket"},
+                "\n",
+                "export AWSAccessKeyId=",
+                {"Ref":"AWSkeyid"},
+                "\n",
+                "export AWSAccessKey=",
+                {"Ref":"AWSkey"},
+                "\n"
               ]
           ]
           }
