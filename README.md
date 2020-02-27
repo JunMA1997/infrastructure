@@ -8,7 +8,7 @@ aws cloudformation create-stack \
   --profile prod \
   --parameters file://vars.json \
   --region us-east-2\
-  --template-body file://networking.json \
+  --template-body file://networking.yaml \
   --capabilities CAPABILITY_NAMED_IAM
 
 ## for grading hours
@@ -20,6 +20,10 @@ aws cloudformation create-stack \
 ### AWS CLI DELETE S3 OBJECT
 * aws s3 rm s3://csye6225demo4-s3bucket-1aqwkeqzzxcgm --recursive --profile prod --region us-east-2
 ### delete stack
+* must delete instance for check rds
+* * aws ec2 terminate-instances --instance-ids i-1234567890abcdef0
+
+
 aws cloudformation delete-stack   \
 --stack-name csye6225demo4 \
 --profile prod \
