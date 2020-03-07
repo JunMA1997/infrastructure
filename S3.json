@@ -11,9 +11,9 @@
     "Resources":{
         "S3Bucket": {
             "Type": "AWS::S3::Bucket",
-            "DeletionPolicy" : "Delete",      
+            "DeletionPolicy" : "Retain",      
             "Properties": {
-                "BucketName" : "S3NAME",
+                "BucketName" : {"Ref":"S3NAME"},
                 "BucketEncryption": {
                     "ServerSideEncryptionConfiguration": [{
                         "ServerSideEncryptionByDefault": {
@@ -31,7 +31,11 @@
                 "LifecycleConfiguration": {
                     
                     "Rules": [
-                        {"ExpirationInDays" : 30}
+                        {
+                            "Status": "Enabled",
+                            "ExpirationInDays" : 30,
+                            "NoncurrentVersionExpirationInDays" : 1
+                        }
                     ]
                 }
             }

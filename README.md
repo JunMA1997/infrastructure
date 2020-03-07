@@ -28,3 +28,5 @@ aws cloudformation delete-stack   \
 --stack-name csye6225demo4 \
 --profile prod \
 --region us-east-2*
+### create CICDS3
+* * aws cloudformation create-stack --stack-name CICDS3 --profile root --parameters file://S3vars.json --template-body file://S3.json
