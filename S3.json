@@ -1,0 +1,43 @@
+{
+    "AWSTemplateFormatVersion":"2010-09-09",
+    "Description": "setup s3 bucket for ci/cd",
+    "Parameters":{
+        "S3NAME":{
+            "Type":"String",
+            "Default":"",
+            "Description":"S3NAME"
+        }
+    },
+    "Resources":{
+        "S3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "DeletionPolicy" : "Delete",      
+            "Properties": {
+                "BucketName" : "S3NAME",
+                "BucketEncryption": {
+                    "ServerSideEncryptionConfiguration": [{
+                        "ServerSideEncryptionByDefault": {
+                            "SSEAlgorithm": "AES256"
+                        }
+                    }]
+                },
+                "AccessControl": "Private",   
+                "PublicAccessBlockConfiguration":{
+                    "BlockPublicAcls":true,
+                    "BlockPublicPolicy":true,
+                    "IgnorePublicAcls":true,
+                    "RestrictPublicBuckets":true
+                } ,    
+                "LifecycleConfiguration": {
+                    
+                    "Rules": [
+                        {"ExpirationInDays" : 30}
+                    ]
+                }
+            }
+        }
+    },
+    "Outputs": {
+
+    }
+}
