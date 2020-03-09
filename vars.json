@@ -1,15 +1,19 @@
 [
     {
+        "ParameterKey": "ImageId",
+        "ParameterValue":"ami-0ea1dacb7678137fc" 
+    }    ,
+    {
         "ParameterKey": "AWSregion",
-        "ParameterValue":"us-east-2" 
+        "ParameterValue":"us-east-1" 
     },
     {
         "ParameterKey": "AWSkeyid",
-        "ParameterValue": "AKIA32TFIXNHE2IN773O"
+        "ParameterValue": "AKIAXOQ3XLO2ETONUE6Q"
     },
     {
         "ParameterKey": "AWSkey",
-        "ParameterValue": "s8U0oghXtgoq3YhWdboHxKOmcw+m2cAf/MD6N9km"
+        "ParameterValue": "ITxadnzUHVGR0qC8yCJJKbow2fBHk4y4+Q5o/5kS"
     },
     {
         "ParameterKey": "dbport",
@@ -61,10 +65,6 @@
     {
         "ParameterKey": "DBName",
         "ParameterValue":"CSYE6225" 
-    }    ,
-    {
-        "ParameterKey": "ImageId",
-        "ParameterValue":"ami-05fc8e20fcc9f9a1b" 
     }    ,
     {
         "ParameterKey": "PubliclyAccessible",
