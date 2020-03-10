@@ -1,4 +1,4 @@
-# infrastructure
+# infrastructure(using yaml)
 ## var
 * vars.json
 ## commondexample
