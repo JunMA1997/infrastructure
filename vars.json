@@ -1,7 +1,31 @@
 [
     {
+        "ParameterKey": "DeploymentType",
+        "ParameterValue":"IN_PLACE" 
+    },
+    {
+        "ParameterKey": "DeploymentGroupName",
+        "ParameterValue":"csye6225-webapp-deployment" 
+    },
+    {
+        "ParameterKey": "ComputePlatform",
+        "ParameterValue":"Server" 
+    },
+    {
+        "ParameterKey": "APPName",
+        "ParameterValue":"webapp" 
+    },
+    {
+        "ParameterKey": "AccountID",
+        "ParameterValue":"512233003956" 
+    },
+    {
+        "ParameterKey": "DeployS3",
+        "ParameterValue":"codedeploy.meepo.me" 
+    },
+    {
         "ParameterKey": "ImageId",
-        "ParameterValue":"ami-0ea1dacb7678137fc" 
+        "ParameterValue":"ami-0b4a4633c13397139" 
     }    ,
     {
         "ParameterKey": "AWSregion",

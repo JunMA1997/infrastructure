@@ -3,7 +3,7 @@
 * vars.json
 ## commondexample
 
-* * aws cloudformation create-stack --stack-name csye6225demo4 --profile dev --parameters file://vars.json --region us-east-1 --template-body file://application.yaml --capabilities CAPABILITY_NAMED_IAM
+* * aws cloudformation create-stack --stack-name csye6225 --profile dev --parameters file://vars.json --region us-east-1 --template-body file://application.yaml --capabilities CAPABILITY_NAMED_IAM
 
 ## for grading hours
 ### DB COMMAND
