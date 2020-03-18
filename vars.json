@@ -25,7 +25,7 @@
     },
     {
         "ParameterKey": "ImageId",
-        "ParameterValue":"ami-0b4a4633c13397139" 
+        "ParameterValue":"ami-09147a7a43f0c8313" 
     }    ,
     {
         "ParameterKey": "AWSregion",
