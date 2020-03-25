@@ -1,0 +1,140 @@
+[
+    {
+        "ParameterKey": "ImageId",
+        "ParameterValue":"ami-0cd30a6dfde29e65f" 
+    }    ,
+    {
+        "ParameterKey": "route53DNS",
+        "ParameterValue":"prod.meepo.me" 
+    },
+    {
+        "ParameterKey": "HostedZoneId",
+        "ParameterValue":"Z3F5E10006QEDB" 
+    },
+    {
+        "ParameterKey": "DeploymentType",
+        "ParameterValue":"IN_PLACE" 
+    },
+    {
+        "ParameterKey": "DeploymentGroupName",
+        "ParameterValue":"csye6225-webapp-deployment" 
+    },
+    {
+        "ParameterKey": "ComputePlatform",
+        "ParameterValue":"Server" 
+    },
+    {
+        "ParameterKey": "APPName",
+        "ParameterValue":"webapp" 
+    },
+    {
+        "ParameterKey": "AccountID",
+        "ParameterValue":"813034945358" 
+    },
+    {
+        "ParameterKey": "DeployS3",
+        "ParameterValue":"codedeploy.meepo.me" 
+    },
+    {
+        "ParameterKey": "AWSregion",
+        "ParameterValue":"us-east-1" 
+    },
+    {
+        "ParameterKey": "AWSkeyid",
+        "ParameterValue": "AKIA32TFIXNHE2IN773O"
+    },
+    {
+        "ParameterKey": "AWSkey",
+        "ParameterValue": "s8U0oghXtgoq3YhWdboHxKOmcw+m2cAf/MD6N9km"
+    },
+    {
+        "ParameterKey": "dbport",
+        "ParameterValue": "3306"
+    },
+    {
+        "ParameterKey": "ManagedPolicyName",
+        "ParameterValue": "WebAppS3"
+    },
+    {
+        "ParameterKey": "KeyName",
+        "ParameterValue": "aws"
+    },
+    {
+        "ParameterKey": "RoleName",
+        "ParameterValue": "EC2-CSYE6225"
+    },{
+        "ParameterKey": "AllocatedStorage",
+        "ParameterValue":"5" 
+    },
+    {
+        "ParameterKey": "InstanceType",
+        "ParameterValue":"t2.micro" 
+    },
+    {
+        "ParameterKey": "dbusername",
+        "ParameterValue":"root" 
+    },
+    {
+        "ParameterKey": "dbuserPassword",
+        "ParameterValue":"QWERty1234!" 
+    }    ,
+    {
+        "ParameterKey": "dbengine",
+        "ParameterValue":"MySQL" 
+    }    ,
+    {
+        "ParameterKey": "dbinstanceClass",
+        "ParameterValue":"db.t3.micro" 
+    }    ,
+    {
+        "ParameterKey": "MultiAZ",
+        "ParameterValue":"false" 
+    }    ,
+    {
+        "ParameterKey": "DBInstanceIdentifier",
+        "ParameterValue":"CSYE6225" 
+    }    ,
+    {
+        "ParameterKey": "DBName",
+        "ParameterValue":"CSYE6225" 
+    }    ,
+    {
+        "ParameterKey": "PubliclyAccessible",
+        "ParameterValue":"false" 
+    }    ,
+    {
+        "ParameterKey": "DisableApiTermination",
+        "ParameterValue":"false" 
+    }    ,
+    {
+        "ParameterKey": "VPCCIDR",
+        "ParameterValue":"192.168.0.0/16" 
+    }    ,
+    {
+        "ParameterKey": "SubnetCIDR0",
+        "ParameterValue":"192.168.1.0/24" 
+    }    ,
+    {
+        "ParameterKey": "SubnetCIDR1",
+        "ParameterValue":"192.168.2.0/24" 
+    }    ,
+    {
+        "ParameterKey": "SubnetCIDR2",
+        "ParameterValue":"192.168.3.0/24" 
+    }    ,
+    {
+        "ParameterKey": "VPCNAME",
+        "ParameterValue":"CSYE6225" 
+    },   
+    {
+        "ParameterKey": "rootVolumeSize",
+        "ParameterValue":"20" 
+    },
+    {
+        "ParameterKey": "rootVolumeType",
+        "ParameterValue":"gp2" 
+    }
+]
+
+
+

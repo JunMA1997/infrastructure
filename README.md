@@ -3,7 +3,7 @@
 * vars.json
 ## commondexample
 
-* * aws cloudformation create-stack --stack-name csye6225 --profile prod --parameters file://vars.json --region us-east-1 --template-body file://application.yaml --capabilities CAPABILITY_NAMED_IAM
+* * aws cloudformation create-stack --stack-name csye6225 --profile dev --parameters file://vars.json --region us-east-1 --template-body file://application.yaml --capabilities CAPABILITY_NAMED_IAM
 
 ## for grading hours
 ### DB COMMAND
@@ -19,3 +19,6 @@
 * * aws cloudformation delete-stack --stack-name csye6225demo4 --profile prod --region us-east-2*
 ### create CICDS3
 * * aws cloudformation create-stack --stack-name CICDS3 --profile root --parameters file://S3vars.json --template-body file://S3.yaml   --capabilities CAPABILITY_NAMED_IAM
+
+### validata tem
+* * aws cloudformation validate-template --template-body file://application.yaml --profile prod
