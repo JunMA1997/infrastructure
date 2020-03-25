@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'setup s3 bucket for ci/cd'
+Description: 'setup s3 bucket for ci/cd and auto delete when cloudformation delete'
 Parameters:
   S3NAME: 
     Type: String

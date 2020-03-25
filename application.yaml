@@ -1,6 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup'
 Parameters:
+    route53DNS:
+        Type: String
+        Default: ""
+        Description: "route53DNS"
+    HostedZoneId: 
+        Type: String
+        Default: ""
+        Description: "HostedZoneId"
     dbport: {Type: String, Default: "", Description: 'port for rds'}
     AWSkeyid: {Type: String, Default: "", Description: 'AWS crendential keyid'}
     AWSkey: {Type: String, Default: "", Description: 'AWS crendential key'}
@@ -93,8 +101,6 @@ Resources:
     CodedeployS3Policy: {DependsOn: [WebAppRole], Type: 'AWS::IAM::ManagedPolicy', Properties: {ManagedPolicyName: CodeDeploy-EC2-S3, Roles: [{Ref: RoleName}], PolicyDocument: {Version: "2012-10-17",Statement: [{Action: ["s3:GetObject","s3:ListBucket"],Effect: "Allow",Resource: [{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: DeployS3}]]},{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: DeployS3},"/*"]]}]}]}}}
     WebAppProfile: {DependsOn: [WebAppRole], Type: 'AWS::IAM::InstanceProfile', Properties: {Path: /, Roles: [{Ref: WebAppRole}]}}
     DBSubnetGroup: {DependsOn: [EC2SUBNET0, EC2SUBNET1, EC2SUBNET2], Type: 'AWS::RDS::DBSubnetGroup', Properties: {DBSubnetGroupDescription: DBSubnetGroup, DBSubnetGroupName: DBSubnetGroup, SubnetIds: [{Ref: EC2SUBNET0}, {Ref: EC2SUBNET1}, {Ref: EC2SUBNET2}], Tags: [{Key: Name, Value: DBSubnetGroup}]}}
-    RDSInstance: {Type: 'AWS::RDS::DBInstance', DependsOn: [DBSubnetGroup, DBSInstanceSecurityGroup], Properties: {MasterUsername: {Ref: dbusername}, MasterUserPassword: {Ref: dbuserPassword}, Engine: {Ref: dbengine}, DBInstanceClass: {Ref: dbinstanceClass}, MultiAZ: {Ref: MultiAZ}, DBInstanceIdentifier: {Ref: DBInstanceIdentifier}, DBSubnetGroupName: {Ref: DBSubnetGroup}, PubliclyAccessible: {Ref: PubliclyAccessible}, DBName: {Ref: DBName}, AllocatedStorage: {Ref: AllocatedStorage}, VPCSecurityGroups: [{Ref: DBSInstanceSecurityGroup}]}}
-    EC2Instance: {DependsOn: [WebAppProfile, EC2SUBNET1, RDSInstance, S3Bucket], Type: 'AWS::EC2::Instance', Properties: {UserData: {'Fn::Base64': {'Fn::Join': ["", ["#!/bin/bash\n", "set -e -x \n", 'echo export DBHost=', {'Fn::GetAtt': [RDSInstance, Endpoint.Address]}, " >> /etc/profile\n", 'echo export DBUser=', {Ref: dbusername}, " >> /etc/profile\n", 'echo export DBPassword=', {Ref: dbuserPassword}, " >> /etc/profile\n", 'echo export DBPort=', {Ref: dbport}, " >> /etc/profile\n", 'echo export DBDatabase=', {Ref: DBName}, " >> /etc/profile\n", 'echo export S3BucketName=', {Ref: S3Bucket}, " >> /etc/profile\n", 'echo export AWSAccessKeyId=', {Ref: AWSkeyid}, " >> /etc/profile\n", 'echo export AWSAccessKey=', {Ref: AWSkey}, "\n" ]]}}, KeyName: {Ref: KeyName}, ImageId: {Ref: ImageId}, NetworkInterfaces: [{DeviceIndex: '0', AssociatePublicIpAddress: 'true', DeleteOnTermination: 'true', SubnetId: {Ref: EC2SUBNET1}, GroupSet: [{Ref: AppInstanceSecurityGroup}]}], InstanceType: {Ref: InstanceType}, DisableApiTermination: {Ref: DisableApiTermination}, BlockDeviceMappings: [{DeviceName: /dev/sda1, Ebs: {VolumeSize: {Ref: rootVolumeSize}, VolumeType: {Ref: rootVolumeType}}}], IamInstanceProfile: {Ref: WebAppProfile}, Tags: [{Key: name, Value: demo}]}}
     CodeDeployServiceRole: 
         Type: AWS::IAM::Role
         Properties: 
@@ -244,6 +250,7 @@ Resources:
         DependsOn: 
         -   Application
         -   CodeDeployServiceRole
+        -   WebServerGroup
         Type: AWS::CodeDeploy::DeploymentGroup
         Properties:
             ApplicationName: !Ref APPName
@@ -262,8 +269,169 @@ Resources:
             ServiceRoleArn: 
                 !GetAtt CodeDeployServiceRole.Arn
             DeploymentConfigName: CodeDeployDefault.AllAtOnce
+            AutoScalingGroups:
+            -   !Ref WebServerGroup
+    LoadBalancer:
+        DependsOn:
+        -   EC2SUBNET0
+        -   EC2SUBNET1
+        Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+        Properties: 
+            IpAddressType: ipv4
+            SecurityGroups: 
+            - !Ref AppInstanceSecurityGroup
+            Tags: 
+            -   Key: name
+                Value: lb
+            Type: "application"
+            Subnets:
+            -   !Ref EC2SUBNET0
+            -   !Ref EC2SUBNET1
+    LBTargetGroup:
+        DependsOn:
+        -   EC2VPC0
+        Type: AWS::ElasticLoadBalancingV2::TargetGroup
+        Properties: 
+            HealthCheckIntervalSeconds: 60
+            HealthCheckProtocol: HTTP
+            HealthCheckPort: 3000
+            HealthCheckTimeoutSeconds: 20
+            Matcher: 
+                  HttpCode: 200
+            Name: LBTargetGroup
+            VpcId: !Ref EC2VPC0
+            Port: 3000
+            Protocol: HTTP
+            Tags:
+            -   Key: name
+                Value: LBTargetGroup
+            TargetType: instance 
+
+    LBListener:
+        DependsOn:
+        -   LBTargetGroup
+        -   LoadBalancer
+        Type: AWS::ElasticLoadBalancingV2::Listener
+        Properties: 
+            DefaultActions: 
+            -   Type: forward 
+                ForwardConfig:
+                    TargetGroups: 
+                    -   TargetGroupArn: 
+                            !Ref LBTargetGroup
+                        Weight: 1
+
+            LoadBalancerArn: !Ref LoadBalancer
+            Port: 80
+            Protocol: HTTP
+    launchConfig:
+        DependsOn: 
+        -   WebAppProfile
+        -   S3Bucket
+        -   RDSInstance
+        -   EC2SUBNET1
+        -   WebAppProfile
+        -   EC2SUBNET0
+        -   EC2SUBNET2
+        Type: AWS::AutoScaling::LaunchConfiguration
+        Properties:
+            AssociatePublicIpAddress: true
+            IamInstanceProfile: !Ref WebAppProfile
+            ImageId: !Ref ImageId
+            InstanceType: !Ref InstanceType
+            KeyName: !Ref KeyName
+            SecurityGroups: 
+            -   !Ref AppInstanceSecurityGroup
+            UserData: {'Fn::Base64': {'Fn::Join': ["", ["#!/bin/bash\n", "set -e -x \n", 'echo export DBHost=', {'Fn::GetAtt': [RDSInstance, Endpoint.Address]}, " >> /etc/profile\n", 'echo export DBUser=', {Ref: dbusername}, " >> /etc/profile\n", 'echo export DBPassword=', {Ref: dbuserPassword}, " >> /etc/profile\n", 'echo export DBPort=', {Ref: dbport}, " >> /etc/profile\n", 'echo export DBDatabase=', {Ref: DBName}, " >> /etc/profile\n", 'echo export S3BucketName=', {Ref: S3Bucket}, " >> /etc/profile\n", 'echo export AWSAccessKeyId=', {Ref: AWSkeyid}, " >> /etc/profile\n", 'echo export AWSAccessKey=', {Ref: AWSkey}, "\n" ]]}}
+
+
+    WebServerGroup:
+        DependsOn:
+        -   LBTargetGroup
+        -   launchConfig
+        -   EC2SUBNET0
+        -   EC2SUBNET1
+        Type: AWS::AutoScaling::AutoScalingGroup        
+        Properties: 
+            VPCZoneIdentifier: 
+            -   !Ref EC2SUBNET0
+            -   !Ref EC2SUBNET1
+            Cooldown: 60
+            DesiredCapacity: 2
+            LaunchConfigurationName: !Ref launchConfig
+            TargetGroupARNs: 
+            -   !Ref LBTargetGroup
+            MaxSize: 5
+            MinSize: 2
+
+    WebServerScaleUpPolicy:
+        DependsOn:
+        -   WebServerGroup
+        Type: AWS::AutoScaling::ScalingPolicy
+        Properties:
+            AdjustmentType: ChangeInCapacity
+            AutoScalingGroupName: !Ref WebServerGroup
+            Cooldown: 60
+            ScalingAdjustment: 1
+    WebServerScaleDownPolicy:
+        DependsOn:
+        -   WebServerGroup
+        Type: AWS::AutoScaling::ScalingPolicy
+        Properties:
+            AdjustmentType: ChangeInCapacity
+            AutoScalingGroupName: !Ref WebServerGroup
+            Cooldown: 60
+            ScalingAdjustment: -1
+    CPUAlarmHigh:
+        DependsOn:
+        -   WebServerGroup
+        Type: AWS::CloudWatch::Alarm
+        Properties:
+            AlarmDescription: "Scale-up if CPU > 90% for 10 minutes"
+            MetricName: CPUUtilization
+            Namespace: AWS/EC2
+            Statistic: Average
+            Period: 300
+            EvaluationPeriods: 2
+            Threshold: 10
+            AlarmActions:
+            -   !Ref WebServerScaleUpPolicy
+            Dimensions: 
+            -   Name: AutoScalingGroupName
+                Value: !Ref WebServerGroup
+            ComparisonOperator: GreaterThanThreshold
+    CPUAlarmLow:
+        DependsOn:
+        -   WebServerGroup
+        Type: AWS::CloudWatch::Alarm
+        Properties:
+            AlarmDescription: "Scale-up if CPU > 90% for 10 minutes"
+            MetricName: CPUUtilization
+            Namespace: AWS/EC2
+            Statistic: Average
+            Period: 300
+            EvaluationPeriods: 2
+            Threshold: 5
+            AlarmActions:
+            -   !Ref WebServerScaleDownPolicy
+            Dimensions: 
+            -   Name: AutoScalingGroupName
+                Value: !Ref WebServerGroup
+            ComparisonOperator: LessThanThreshold
+    RDSInstance: {Type: 'AWS::RDS::DBInstance', DependsOn: [route53RecordSet,LBListener,DBSubnetGroup, DBSInstanceSecurityGroup], Properties: {MasterUsername: {Ref: dbusername}, MasterUserPassword: {Ref: dbuserPassword}, Engine: {Ref: dbengine}, DBInstanceClass: {Ref: dbinstanceClass}, MultiAZ: {Ref: MultiAZ}, DBInstanceIdentifier: {Ref: DBInstanceIdentifier}, DBSubnetGroupName: {Ref: DBSubnetGroup}, PubliclyAccessible: {Ref: PubliclyAccessible}, DBName: {Ref: DBName}, AllocatedStorage: {Ref: AllocatedStorage}, VPCSecurityGroups: [{Ref: DBSInstanceSecurityGroup}]}}
+    route53RecordSet:
+        DependsOn:
+        -   LoadBalancer
+        Type: AWS::Route53::RecordSet
+        Properties:
+            HostedZoneId: !Ref HostedZoneId
+            Name: !Ref route53DNS
+            Type: A
+            AliasTarget: 
+                HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+                DNSName: !GetAtt LoadBalancer.DNSName
+
 Outputs:
-    EC2Info: {Description: 'The EC2 INFO', Value: {Ref: EC2Instance}}
     RDSInfo: {Description: 'The RDS INFO', Value: {Ref: RDSInstance}}
     S3BucketInfo: {Description: 'The S3Bucket INFO', Value: {Ref: S3Bucket}}
     ApplicationInfo: 

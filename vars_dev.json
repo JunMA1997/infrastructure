@@ -1,5 +1,13 @@
 [
     {
+        "ParameterKey": "route53DNS",
+        "ParameterValue":"dev.meepo.me" 
+    },
+    {
+        "ParameterKey": "HostedZoneId",
+        "ParameterValue":"ZBBII3PL7SPSJ" 
+    },
+    {
         "ParameterKey": "DeploymentType",
         "ParameterValue":"IN_PLACE" 
     },
@@ -21,11 +29,11 @@
     },
     {
         "ParameterKey": "DeployS3",
-        "ParameterValue":"codedeploy.meepo.me" 
+        "ParameterValue":"codedeploy.dev.meepo.me" 
     },
     {
         "ParameterKey": "ImageId",
-        "ParameterValue":"ami-09147a7a43f0c8313" 
+        "ParameterValue":"ami-0cd30a6dfde29e65f" 
     }    ,
     {
         "ParameterKey": "AWSregion",
