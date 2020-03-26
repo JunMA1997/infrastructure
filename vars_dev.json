@@ -1,5 +1,17 @@
 [
     {
+        "ParameterKey": "VPCzone0",
+        "ParameterValue":"1" 
+    },
+    {
+        "ParameterKey": "VPCzone1",
+        "ParameterValue":"2"
+    },
+    {
+        "ParameterKey": "VPCzone2",
+        "ParameterValue":"3" 
+    },
+    {
         "ParameterKey": "route53DNS",
         "ParameterValue":"dev.meepo.me" 
     },
@@ -108,7 +120,7 @@
     }    ,
     {
         "ParameterKey": "VPCCIDR",
-        "ParameterValue":"192.168.0.0/16" 
+        "ParameterValue":"192.168.0.0/20" 
     }    ,
     {
         "ParameterKey": "SubnetCIDR0",
