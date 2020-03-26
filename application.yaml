@@ -9,10 +9,22 @@ Parameters:
         Type: String
         Default: ""
         Description: "HostedZoneId"
-    dbport: {Type: String, Default: "", Description: 'port for rds'}
-    AWSkeyid: {Type: String, Default: "", Description: 'AWS crendential keyid'}
-    AWSkey: {Type: String, Default: "", Description: 'AWS crendential key'}
-    ManagedPolicyName: {Type: String, Default: "", Description: 'policy name, in user story, it named WebAppS3'}
+    dbport: 
+        Type: String
+        Default: ""
+        Description: 'port for rds'
+    AWSkeyid: 
+        Type: String
+        Default: ""
+        Description: 'AWS crendential keyid'
+    AWSkey: 
+        Type: String
+        Default: ""
+        Description: 'AWS crendential key'
+    ManagedPolicyName: 
+        Type: String
+        Default: ""
+        Description: 'policy name, in user story, it named WebAppS3'
     KeyName: {Type: String, Default: "", Description: 'AWS Key pair Name(for ec2)'}
     RoleName: {Type: String, Default: "", Description: 'RoleName, in user story, it named EC2-CSYE6225'}
     AllocatedStorage: {Type: Number, Default: 5, Description: 'RDS AllocatedStorage'}
@@ -78,8 +90,6 @@ Resources:
     RouteTableAssociationWithEC2SUBNET1: {DependsOn: [EC2SUBNET1, EC2RouteTable], Type: 'AWS::EC2::SubnetRouteTableAssociation', Properties: {SubnetId: {Ref: EC2SUBNET1}, RouteTableId: {Ref: EC2RouteTable}}}
     RouteTableAssociationWithEC2SUBNET2: {DependsOn: [EC2SUBNET2, EC2RouteTable], Type: 'AWS::EC2::SubnetRouteTableAssociation', Properties: {SubnetId: {Ref: EC2SUBNET2}, RouteTableId: {Ref: EC2RouteTable}}}
     EC2Route: {DependsOn: [EC2InternetGateway, AttachGateway], Type: 'AWS::EC2::Route', Properties: {RouteTableId: {Ref: EC2RouteTable}, GatewayId: {Ref: EC2InternetGateway}, DestinationCidrBlock: 0.0.0.0/0}}
-    AppInstanceSecurityGroup: {Type: 'AWS::EC2::SecurityGroup', DependsOn: EC2VPC0, Properties: {GroupDescription: 'application security group for 22 80 443 and 3000(app)', GroupName: application, SecurityGroupIngress: [{IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '22', ToPort: '22'}, {IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '80', ToPort: '80'}, {IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '443', ToPort: '443'}, {IpProtocol: TCP, CidrIp: 0.0.0.0/0, FromPort: '3000', ToPort: '3000'}], VpcId: {Ref: EC2VPC0}}}
-    DBSInstanceSecurityGroup: {Type: 'AWS::EC2::SecurityGroup', DependsOn: AppInstanceSecurityGroup, Properties: {GroupDescription: 'database security group for 3306', GroupName: database, SecurityGroupIngress: [{IpProtocol: TCP, SourceSecurityGroupId: {Ref: AppInstanceSecurityGroup}, FromPort: '3306', ToPort: '3306'}], VpcId: {Ref: EC2VPC0}}}
     S3Bucket: {Type: 'AWS::S3::Bucket', DeletionPolicy: Delete, Properties: {BucketEncryption: {ServerSideEncryptionConfiguration: [{ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}}]}, AccessControl: Private, PublicAccessBlockConfiguration: {BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true}, LifecycleConfiguration: {Rules: [{Id: TransitionInDays30toSTANDARD_IA, Prefix: "", Status: Enabled, Transitions: [{TransitionInDays: '30', StorageClass: STANDARD_IA}]}]}}}
     WebAppRole: 
         Type: 'AWS::IAM::Role'
@@ -97,10 +107,49 @@ Resources:
                         -   events.amazonaws.com
                     Action: 
                     -   'sts:AssumeRole'
-    WebAppS3Policy: {DependsOn: [WebAppRole, S3Bucket], Type: 'AWS::IAM::ManagedPolicy', Properties: {ManagedPolicyName: {Ref: ManagedPolicyName}, Roles: [{Ref: RoleName}], PolicyDocument: {Version: '2012-10-17', Statement: [{Effect: Allow, Action: ['s3:ListBucket', 's3:PutObject', 's3:GetObject', 's3:DeleteObject'], Resource: [{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: S3Bucket}]]}, {'Fn::Join': ["", ['arn:aws:s3:::', {Ref: S3Bucket}, '/*']]}]}]}}}
-    CodedeployS3Policy: {DependsOn: [WebAppRole], Type: 'AWS::IAM::ManagedPolicy', Properties: {ManagedPolicyName: CodeDeploy-EC2-S3, Roles: [{Ref: RoleName}], PolicyDocument: {Version: "2012-10-17",Statement: [{Action: ["s3:GetObject","s3:ListBucket"],Effect: "Allow",Resource: [{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: DeployS3}]]},{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: DeployS3},"/*"]]}]}]}}}
-    WebAppProfile: {DependsOn: [WebAppRole], Type: 'AWS::IAM::InstanceProfile', Properties: {Path: /, Roles: [{Ref: WebAppRole}]}}
-    DBSubnetGroup: {DependsOn: [EC2SUBNET0, EC2SUBNET1, EC2SUBNET2], Type: 'AWS::RDS::DBSubnetGroup', Properties: {DBSubnetGroupDescription: DBSubnetGroup, DBSubnetGroupName: DBSubnetGroup, SubnetIds: [{Ref: EC2SUBNET0}, {Ref: EC2SUBNET1}, {Ref: EC2SUBNET2}], Tags: [{Key: Name, Value: DBSubnetGroup}]}}
+    WebAppS3Policy: 
+        DependsOn: 
+        -   WebAppRole
+        -   S3Bucket
+        Type: 'AWS::IAM::ManagedPolicy'
+        Properties: 
+            ManagedPolicyName: !Ref ManagedPolicyName
+            Roles: 
+            -   !Ref RoleName
+            PolicyDocument: {Version: '2012-10-17', Statement: [{Effect: Allow, Action: ['s3:ListBucket', 's3:PutObject', 's3:GetObject', 's3:DeleteObject'], Resource: [{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: S3Bucket}]]}, {'Fn::Join': ["", ['arn:aws:s3:::', {Ref: S3Bucket}, '/*']]}]}]}
+    CodedeployS3Policy: 
+        DependsOn: 
+        -   WebAppRole
+        Type: 'AWS::IAM::ManagedPolicy'
+        Properties: 
+            ManagedPolicyName: CodeDeploy-EC2-S3
+            Roles: 
+            -   !Ref RoleName 
+            PolicyDocument: {Version: "2012-10-17",Statement: [{Action: ["s3:GetObject","s3:ListBucket"],Effect: "Allow",Resource: [{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: DeployS3}]]},{'Fn::Join': ["", ['arn:aws:s3:::', {Ref: DeployS3},"/*"]]}]}]}
+    WebAppProfile: 
+        DependsOn: 
+        -    WebAppRole
+        Type: 'AWS::IAM::InstanceProfile'
+        Properties: 
+            Path: /
+            Roles: 
+            -   !Ref WebAppRole
+    DBSubnetGroup: 
+        DependsOn: 
+        -   EC2SUBNET0
+        -   EC2SUBNET1
+        -   EC2SUBNET2
+        Type: 'AWS::RDS::DBSubnetGroup'
+        Properties: 
+            DBSubnetGroupDescription: DBSubnetGroup
+            DBSubnetGroupName: DBSubnetGroup
+            SubnetIds: 
+            -   !Ref EC2SUBNET0
+            -   !Ref EC2SUBNET1
+            -   !Ref EC2SUBNET2
+            Tags: 
+            -   Key: Name
+                Value: DBSubnetGroup
     CodeDeployServiceRole: 
         Type: AWS::IAM::Role
         Properties: 
@@ -324,6 +373,47 @@ Resources:
             LoadBalancerArn: !Ref LoadBalancer
             Port: 80
             Protocol: HTTP
+    AppInstanceSecurityGroup: 
+        Type: 'AWS::EC2::SecurityGroup'
+        DependsOn: 
+        -   EC2VPC0
+        Properties: 
+            GroupDescription: 'application sg on 80'
+            GroupName: application
+            SecurityGroupIngress: 
+            -   IpProtocol: TCP
+                CidrIp: 0.0.0.0/0
+                FromPort: '80'
+                ToPort: '80'
+            VpcId: !Ref EC2VPC0
+    DBSInstanceSecurityGroup: 
+        Type: 'AWS::EC2::SecurityGroup'
+        DependsOn: 
+        -   EC2SecurityGroups
+        Properties: 
+            GroupDescription: 'database security group for 3306'
+            GroupName: database 
+            SecurityGroupIngress: 
+            -   IpProtocol: TCP
+                SourceSecurityGroupId: !Ref EC2SecurityGroups 
+                FromPort: '3306'
+                ToPort: '3306'
+            VpcId: !Ref EC2VPC0
+    
+    EC2SecurityGroups:
+        Type: 'AWS::EC2::SecurityGroup'
+        DependsOn: 
+        -   EC2VPC0
+        -   LoadBalancer
+        Properties:
+            GroupDescription: 'ec2 security group for loadbalancer'
+            GroupName: EC2SG
+            SecurityGroupIngress: 
+            -   IpProtocol: TCP
+                SourceSecurityGroupId: !Ref AppInstanceSecurityGroup 
+                FromPort: '3000'
+                ToPort: '3000' 
+            VpcId: !Ref EC2VPC0
     launchConfig:
         DependsOn: 
         -   WebAppProfile
@@ -341,7 +431,8 @@ Resources:
             InstanceType: !Ref InstanceType
             KeyName: !Ref KeyName
             SecurityGroups: 
-            -   !Ref AppInstanceSecurityGroup
+            # -   !Ref AppInstanceSecurityGroup
+            -   !Ref EC2SecurityGroups
             UserData: {'Fn::Base64': {'Fn::Join': ["", ["#!/bin/bash\n", "set -e -x \n", 'echo export DBHost=', {'Fn::GetAtt': [RDSInstance, Endpoint.Address]}, " >> /etc/profile\n", 'echo export DBUser=', {Ref: dbusername}, " >> /etc/profile\n", 'echo export DBPassword=', {Ref: dbuserPassword}, " >> /etc/profile\n", 'echo export DBPort=', {Ref: dbport}, " >> /etc/profile\n", 'echo export DBDatabase=', {Ref: DBName}, " >> /etc/profile\n", 'echo export S3BucketName=', {Ref: S3Bucket}, " >> /etc/profile\n", 'echo export AWSAccessKeyId=', {Ref: AWSkeyid}, " >> /etc/profile\n", 'echo export AWSAccessKey=', {Ref: AWSkey}, "\n" ]]}}
 
 
@@ -418,7 +509,26 @@ Resources:
             -   Name: AutoScalingGroupName
                 Value: !Ref WebServerGroup
             ComparisonOperator: LessThanThreshold
-    RDSInstance: {Type: 'AWS::RDS::DBInstance', DependsOn: [route53RecordSet,LBListener,DBSubnetGroup, DBSInstanceSecurityGroup], Properties: {MasterUsername: {Ref: dbusername}, MasterUserPassword: {Ref: dbuserPassword}, Engine: {Ref: dbengine}, DBInstanceClass: {Ref: dbinstanceClass}, MultiAZ: {Ref: MultiAZ}, DBInstanceIdentifier: {Ref: DBInstanceIdentifier}, DBSubnetGroupName: {Ref: DBSubnetGroup}, PubliclyAccessible: {Ref: PubliclyAccessible}, DBName: {Ref: DBName}, AllocatedStorage: {Ref: AllocatedStorage}, VPCSecurityGroups: [{Ref: DBSInstanceSecurityGroup}]}}
+    RDSInstance: 
+        Type: 'AWS::RDS::DBInstance'
+        DependsOn: 
+        -   route53RecordSet
+        -   LBListener
+        -   DBSubnetGroup
+        -   DBSInstanceSecurityGroup
+        Properties: 
+            MasterUsername: !Ref dbusername
+            MasterUserPassword: !Ref dbuserPassword
+            Engine: !Ref dbengine
+            DBInstanceClass: !Ref dbinstanceClass
+            MultiAZ: !Ref MultiAZ
+            DBInstanceIdentifier: !Ref DBInstanceIdentifier
+            DBSubnetGroupName: !Ref DBSubnetGroup 
+            PubliclyAccessible: !Ref PubliclyAccessible
+            DBName: !Ref DBName
+            AllocatedStorage: !Ref AllocatedStorage
+            VPCSecurityGroups: 
+            -   !Ref DBSInstanceSecurityGroup
     route53RecordSet:
         DependsOn:
         -   LoadBalancer
@@ -432,8 +542,12 @@ Resources:
                 DNSName: !GetAtt LoadBalancer.DNSName
 
 Outputs:
-    RDSInfo: {Description: 'The RDS INFO', Value: {Ref: RDSInstance}}
-    S3BucketInfo: {Description: 'The S3Bucket INFO', Value: {Ref: S3Bucket}}
+    RDSInfo: 
+        Description: 'The RDS INFO'
+        Value: !Ref RDSInstance
+    S3BucketInfo: 
+        Description: 'The S3Bucket INFO'
+        Value: !Ref S3Bucket
     ApplicationInfo: 
         Description: 'The Application Info'
         Value: !Ref Application
