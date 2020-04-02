@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup'
 Parameters:
+    profile:
+        Type: String
+        Default: ""
+        Description: "dev. prod."
     VPCzone0:
         Type: String
         Default: "0"
@@ -435,6 +439,8 @@ Resources:
         -   WebAppProfile
         -   EC2SUBNET0
         -   EC2SUBNET2
+        -   SNSTopic
+        -   Queue
         Type: AWS::AutoScaling::LaunchConfiguration
         Properties:
             AssociatePublicIpAddress: true
@@ -445,7 +451,7 @@ Resources:
             SecurityGroups: 
             # -   !Ref AppInstanceSecurityGroup
             -   !Ref EC2SecurityGroups
-            UserData: {'Fn::Base64': {'Fn::Join': ["", ["#!/bin/bash\n", "set -e -x \n", 'echo export DBHost=', {'Fn::GetAtt': [RDSInstance, Endpoint.Address]}, " >> /etc/profile\n", 'echo export DBUser=', {Ref: dbusername}, " >> /etc/profile\n", 'echo export DBPassword=', {Ref: dbuserPassword}, " >> /etc/profile\n", 'echo export DBPort=', {Ref: dbport}, " >> /etc/profile\n", 'echo export DBDatabase=', {Ref: DBName}, " >> /etc/profile\n", 'echo export S3BucketName=', {Ref: S3Bucket}, " >> /etc/profile\n", 'echo export AWSAccessKeyId=', {Ref: AWSkeyid}, " >> /etc/profile\n", 'echo export AWSAccessKey=', {Ref: AWSkey}, "\n" ]]}}
+            UserData: {'Fn::Base64': {'Fn::Join': ["", ["#!/bin/bash\n", "set -e -x \n", 'echo export DBHost=', {'Fn::GetAtt': [RDSInstance, Endpoint.Address]}, " >> /etc/profile\n", 'echo export DBUser=', {Ref: dbusername}, " >> /etc/profile\n", 'echo export DBPassword=', {Ref: dbuserPassword}, " >> /etc/profile\n", 'echo export DBPort=', {Ref: dbport}, " >> /etc/profile\n", 'echo export DBDatabase=', {Ref: DBName}, " >> /etc/profile\n", 'echo export S3BucketName=', {Ref: S3Bucket}, 'echo export AWSregion=', {Ref: AWSregion}, " >> /etc/profile\n",'echo export SNSTopicARN=', {Ref: SNSTopic}, " >> /etc/profile\n", " >> /etc/profile\n",'echo export QueueURL=', {Ref: Queue}, " >> /etc/profile\n",'echo export AWSProfile=', {Ref: profile}, " >> /etc/profile\n" ]]}}
 
 
     WebServerGroup:
@@ -553,8 +559,154 @@ Resources:
             AliasTarget: 
                 HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
                 DNSName: !GetAtt LoadBalancer.DNSName
+    # If we need create User by cloudformation, delete the #
+    SesSMTPIAMUser:
+        Type: AWS::IAM::User
+        Properties: 
+            Policies: 
+            -   PolicyName: SMTPUserPolicy
+                PolicyDocument: 
+                    {"Statement": [{"Effect":"Allow","Action":"ses:SendRawEmail","Resource":"*"}]}
+            UserName: SesIAMUser
+    SesIAMUserKeys:
+        DependsOn:
+        -   SesSMTPIAMUser
+        Type: AWS::IAM::AccessKey
+        Properties:
+            UserName:
+                !Ref SesSMTPIAMUser    
+    # If we need create User by cloudformation, delete the #
+    SesSMTPIAMUser:
+        Type: AWS::IAM::User
+        Properties: 
+            Policies: 
+            -   PolicyName: SMTPUserPolicy
+                PolicyDocument: 
+                    {"Statement": [{"Effect":"Allow","Action":"ses:SendRawEmail","Resource":"*"}]}
+            UserName: SesIAMUser
+    SesIAMUserKeys:
+        DependsOn:
+        -   SesSMTPIAMUser
+        Type: AWS::IAM::AccessKey
+        Properties:
+            UserName:
+                !Ref SesSMTPIAMUser    
+    LambdaRole: 
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                -   Effect: Allow
+                    Principal:
+                        Service:
+                        -   lambda.amazonaws.com
+                    Action:
+                    -   sts:AssumeRole
+            Path: "/"
+            Policies:
+            -   PolicyName: Lambdapolicy
+                PolicyDocument: 
+                    Version: '2012-10-17'
+                    Statement: 
+                    -   Effect: Allow
+                        Action: 
+                        -   ses:SendEmail
+                        -   ses:SendRawEmail
+                        -   sns:Publish
+                        -   "dynamodb:*"
+                        Resource: "*"
+    LambdaFunction:
+        Type: "AWS::Lambda::Function"
+        DependsOn:
+        - LambdaRole
+        Properties:
+            Environment: 
+                Variables: 
+                    profile : !Ref profile
+            Code:
+                ZipFile: !Sub |
+                    // waitting for update
+            Description: a basic lambda function
+            FunctionName: SESLambda
+            Handler: index.handler
+            Role : !GetAtt LambdaRole.Arn
+            Runtime: nodejs10.x
+            Timeout: 60
+    SNSTopic:
+        Type: AWS::SNS::Topic
+        Properties: 
+            DisplayName: SNSTopic
+            # KmsMasterKeyId: String
+            Subscription: 
+            -   Protocol: lambda
+                Endpoint: !GetAtt LambdaFunction.Arn  
+            # Tags: 
+            #     - Tag
+            TopicName: SNSTopic
+    SNSFunctionInvokePermission:
+        DependsOn:
+        -   LambdaFunction
+        -   SNSTopic
+        Type: 'AWS::Lambda::Permission'
+        Properties:
+            Action: 'lambda:InvokeFunction'
+            FunctionName: !Ref LambdaFunction
+            Principal: sns.amazonaws.com   
+            SourceArn: !Ref SNSTopic
+    TopicPolicy:
+        DependsOn: 
+        -   SNSTopic
+        Type: 'AWS::SNS::TopicPolicy'
+        Properties:
+            Topics:
+                - !Ref SNSTopic
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                -   Effect: Allow
+                    Action: 'sns:Publish'
+                    Resource: !Ref SNSTopic
+                    Principal:
+                        AWS: '*'
+    Queue:
+        Type: AWS::SQS::Queue
+        Properties:
+            QueueName: SQSService
+    DynamoDB:
+        Type: AWS::DynamoDB::Table
+        Properties: 
+            BillingMode: PAY_PER_REQUEST 
+            AttributeDefinitions: 
+            -   AttributeName: Email
+                AttributeType: S
+            KeySchema:
+            -   AttributeName: Email
+                KeyType: HASH
+            TableName: EmailAPI
+            TimeToLiveSpecification:
+                AttributeName: TimeToLive
+                Enabled: true
+    webAppSNSandSQSPolicy:
+        DependsOn: 
+        -   WebAppRole
+        Type: 'AWS::IAM::ManagedPolicy'
+        Properties: 
+            ManagedPolicyName: webAppSNSandSesPolicy
+            Roles: 
+            -   !Ref RoleName
+            PolicyDocument: {Version: '2012-10-17', Statement: [{Effect: Allow, Action: ['sns:*','sqs:*'], Resource: "*"}]}
+    
 
 Outputs:
+    SesIAMUserKeys:
+        Description: USER
+        Value:
+            !Ref SesIAMUserKeys
+    SesIAMUserKeysSecretAccessKey:
+        Description: USER
+        Value:
+            !GetAtt SesIAMUserKeys.SecretAccessKey
     RDSInfo: 
         Description: 'The RDS INFO'
         Value: !Ref RDSInstance

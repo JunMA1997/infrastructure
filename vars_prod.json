@@ -1,5 +1,9 @@
 [
     {
+        "ParameterKey": "profile",
+        "ParameterValue":"prod." 
+    },
+    {
         "ParameterKey": "ImageId",
         "ParameterValue":"ami-0cd30a6dfde29e65f" 
     }    ,
