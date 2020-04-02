@@ -1,0 +1,156 @@
+# This file is for SES SMTP USER, lambda, SNS and SQS and DynamoDB 
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup'
+Parameters:
+    profile:
+        Type: String
+        Default: ""
+Resources:
+    # If we need create User by cloudformation, delete the #
+    SesSMTPIAMUser:
+        Type: AWS::IAM::User
+        Properties: 
+            Policies: 
+            -   PolicyName: SMTPUserPolicy
+                PolicyDocument: 
+                    {"Statement": [{"Effect":"Allow","Action":"ses:SendRawEmail","Resource":"*"}]}
+            UserName: SesIAMUser
+    SesIAMUserKeys:
+        DependsOn:
+        -   SesSMTPIAMUser
+        Type: AWS::IAM::AccessKey
+        Properties:
+            UserName:
+                !Ref SesSMTPIAMUser
+    
+    LambdaRole: 
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                -   Effect: Allow
+                    Principal:
+                        Service:
+                        -   lambda.amazonaws.com
+                    Action:
+                    -   sts:AssumeRole
+            Path: "/"
+            Policies:
+            -   PolicyName: Lambdapolicy
+                PolicyDocument: 
+                    Version: '2012-10-17'
+                    Statement: 
+                    -   Effect: Allow
+                        Action: 
+                        -   ses:SendEmail
+                        -   ses:SendRawEmail
+                        -   sns:Publish
+                        -   "dynamodb:*"
+                        Resource: "*"
+    LambdaFunction:
+        Type: "AWS::Lambda::Function"
+        DependsOn:
+        - LambdaRole
+        Properties:
+            Environment: 
+                Variables: 
+                    profile : !Ref profile
+            Code:
+                ZipFile: !Sub |
+                    // waitting for update
+            Description: a basic lambda function
+            FunctionName: SESLambda
+            Handler: index.handler
+            Role : !GetAtt LambdaRole.Arn
+            Runtime: nodejs10.x
+            Timeout: 60
+    SNSTopic:
+        Type: AWS::SNS::Topic
+        Properties: 
+            DisplayName: SNSTopic
+            # KmsMasterKeyId: String
+            Subscription: 
+            -   Protocol: lambda
+                Endpoint: !GetAtt LambdaFunction.Arn  
+            # Tags: 
+            #     - Tag
+            TopicName: SNSTopic
+    SNSFunctionInvokePermission:
+        DependsOn:
+        -   LambdaFunction
+        -   SNSTopic
+        Type: 'AWS::Lambda::Permission'
+        Properties:
+            Action: 'lambda:InvokeFunction'
+            FunctionName: !Ref LambdaFunction
+            Principal: sns.amazonaws.com   
+            SourceArn: !Ref SNSTopic
+    TopicPolicy:
+        DependsOn: 
+        -   SNSTopic
+        Type: 'AWS::SNS::TopicPolicy'
+        Properties:
+            Topics:
+                - !Ref SNSTopic
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                -   Effect: Allow
+                    Action: 'sns:Publish'
+                    Resource: !Ref SNSTopic
+                    Principal:
+                        AWS: '*'
+    Queue:
+        Type: AWS::SQS::Queue
+        Properties:
+            QueueName: SQSService
+    DynamoDB:
+        Type: AWS::DynamoDB::Table
+        Properties: 
+            BillingMode: PAY_PER_REQUEST 
+            AttributeDefinitions: 
+            -   AttributeName: Email
+                AttributeType: S
+            KeySchema:
+            -   AttributeName: Email
+                KeyType: HASH
+            TableName: EmailAPI
+            TimeToLiveSpecification:
+                AttributeName: TimeToLive
+                Enabled: true
+    ServerLessApplication:
+        Type: AWS::CodeDeploy::Application
+        Properties:
+            ApplicationName: ServerLessApplication
+            ComputePlatform:  Lambda 
+    ServerLessApplicationDeploymentGroup:
+        DependsOn: 
+        -   ServerLessApplication
+        -   LambdaCodeDeployServiceRole
+        Type: AWS::CodeDeploy::DeploymentGroup
+        Properties:
+            ApplicationName: !Ref ServerLessApplication
+            DeploymentGroupName: ServerLessApplicationDeploymentGroup
+            ServiceRoleArn: 
+                !GetAtt LambdaCodeDeployServiceRole.Arn
+            DeploymentStyle:
+                DeploymentOption: WITH_TRAFFIC_CONTROL 
+                DeploymentType: BLUE_GREEN 
+    LambdaCodeDeployServiceRole: 
+        Type: AWS::IAM::Role
+        Properties: 
+            RoleName: LambdaCodeDeployServiceRole
+            ManagedPolicyArns: 
+            -   arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+            AssumeRolePolicyDocument: 
+                Version: '2012-10-17'
+                Statement: 
+                -   Effect: Allow
+                    Sid: ""
+                    Principal: 
+                        Service: 
+                        -   codedeploy.amazonaws.com 
+                        -   lambda.amazonaws.com
+                    Action: 
+                    -   'sts:AssumeRole'
