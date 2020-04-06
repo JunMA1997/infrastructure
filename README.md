@@ -22,3 +22,6 @@
 
 ### validata tem
 * * aws cloudformation validate-template --template-body file://application.yaml --profile prod
+
+### aws acm
+* * aws acm import-certificate --certificate file://ssl/prod_meepo_me.crt --certificate-chain file://ssl/prod_meepo_me.ca-bundle --private-key file://ssl/private-key.pem --profile prod
