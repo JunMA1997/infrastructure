@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Launch EC2 with requirement url:https://spring2020.csye6225.cloud/assignments/05/#aws-networking-setup'
 Parameters:
+    Certificate:
+        Type: String
+        Default: ""
+        Description: "CA"
     profile:
         Type: String
         Default: ""
@@ -378,6 +382,8 @@ Resources:
         -   LoadBalancer
         Type: AWS::ElasticLoadBalancingV2::Listener
         Properties: 
+            Certificates: 
+            -   CertificateArn: !Ref Certificate
             DefaultActions: 
             -   Type: forward 
                 ForwardConfig:
@@ -387,20 +393,20 @@ Resources:
                         Weight: 1
 
             LoadBalancerArn: !Ref LoadBalancer
-            Port: 80
-            Protocol: HTTP
+            Port: 443
+            Protocol: HTTPS
     AppInstanceSecurityGroup: 
         Type: 'AWS::EC2::SecurityGroup'
         DependsOn: 
         -   EC2VPC0
         Properties: 
-            GroupDescription: 'application sg on 80'
+            GroupDescription: 'application sg on 443'
             GroupName: application
             SecurityGroupIngress: 
             -   IpProtocol: TCP
                 CidrIp: 0.0.0.0/0
-                FromPort: '80'
-                ToPort: '80'
+                FromPort: '443'
+                ToPort: '443'
             VpcId: !Ref EC2VPC0
     DBSInstanceSecurityGroup: 
         Type: 'AWS::EC2::SecurityGroup'
@@ -536,6 +542,7 @@ Resources:
         -   DBSubnetGroup
         -   DBSInstanceSecurityGroup
         Properties: 
+            StorageEncrypted: true
             MasterUsername: !Ref dbusername
             MasterUserPassword: !Ref dbuserPassword
             Engine: !Ref dbengine

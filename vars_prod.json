@@ -1,5 +1,9 @@
 [
     {
+        "ParameterKey": "Certificate",
+        "ParameterValue":"arn:aws:acm:us-east-1:813034945358:certificate/f0b354f4-336f-4c78-9863-4148b29f3a76" 
+    },
+    {
         "ParameterKey": "profile",
         "ParameterValue":"prod." 
     },
