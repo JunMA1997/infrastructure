@@ -534,6 +534,13 @@ Resources:
             -   Name: AutoScalingGroupName
                 Value: !Ref WebServerGroup
             ComparisonOperator: LessThanThreshold
+    DBParameterGroup:    
+        Type: AWS::RDS::DBParameterGroup
+        Properties: 
+            Description: "enable performance schema"
+            Family: mysql5.7
+            Parameters: 
+                performance_schema: 1
     RDSInstance: 
         Type: 'AWS::RDS::DBInstance'
         DependsOn: 
@@ -542,6 +549,8 @@ Resources:
         -   DBSubnetGroup
         -   DBSInstanceSecurityGroup
         Properties: 
+            DBParameterGroupName: !Ref DBParameterGroup
+            EngineVersion: 5.7.22
             StorageEncrypted: true
             MasterUsername: !Ref dbusername
             MasterUserPassword: !Ref dbuserPassword
